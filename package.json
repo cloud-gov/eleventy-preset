@@ -1,0 +1,47 @@
+{
+  "name": "@studio/eleventy-preset",
+  "version": "0.1.0",
+  "description": "Shared Eleventy preset for Studio-managed USWDS 11ty sites.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./assets": "./src/assets.js"
+  },
+  "bin": {
+    "studio-eleventy-assets": "./bin/studio-eleventy-assets.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@11ty/eleventy": "^3.1.0"
+  },
+  "dependencies": {
+    "@11ty/eleventy-img": "^6.0.4",
+    "@11ty/eleventy-navigation": "^1.0.5",
+    "@11ty/eleventy-plugin-rss": "^2.0.4",
+    "@uswds/uswds": "^3.13.0",
+    "autoprefixer": "^10.4.24",
+    "chokidar": "^5.0.0",
+    "csv-parse": "^5.6.0",
+    "eleventy-plugin-svg-sprite": "^2.4.6",
+    "esbuild": "0.27.3",
+    "js-yaml": "^4.1.1",
+    "luxon": "^3.7.2",
+    "markdown-it": "^14.1.1",
+    "markdown-it-link-attributes": "^4.0.1",
+    "markdown-it-named-headings": "^1.1.0",
+    "postcss": "^8.5.6",
+    "sass": "^1.97.3"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2"
+  }
+}
