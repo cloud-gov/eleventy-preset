@@ -3,9 +3,7 @@ export const defaultPresetOptions = {
   baseUrlEnvironmentVariable: "BASEURL",
   features: {
     baseUrlGlobalData: false,
-    browserSync404: false,
     collections: true,
-    csvData: false,
     filters: true,
     htmlBase: true,
     imageShortcodes: false,
@@ -69,9 +67,6 @@ export const defaultPresetOptions = {
     productionBranch: "main",
     productionKey: "prod",
     stagingKey: "staging"
-  },
-  browserSync404: {
-    file: "_site/404/index.html"
   }
 };
 
@@ -133,10 +128,6 @@ export function resolvePresetOptions(userOptions = {}, environment = process.env
     baseUrlGlobalData: {
       ...defaultPresetOptions.baseUrlGlobalData,
       ...(userOptions.baseUrlGlobalData || {})
-    },
-    browserSync404: {
-      ...defaultPresetOptions.browserSync404,
-      ...(userOptions.browserSync404 || {})
     },
     passthroughCopy: userOptions.passthroughCopy ?? defaultPresetOptions.passthroughCopy,
     watchTargets: userOptions.watchTargets ?? defaultPresetOptions.watchTargets

@@ -1,4 +1,3 @@
-import { registerBrowserSync404 } from "./browser-sync.js";
 import { registerCollections } from "./collections.js";
 import { registerBaseUrlGlobalData, registerDataExtensions } from "./data.js";
 import { resolvePresetOptions, defaultPresetOptions, normalizePathPrefix } from "./defaults.js";
@@ -46,6 +45,4 @@ export default async function studioEleventyPreset(eleventyConfig, userOptions =
   if (options.features.collections) {
     registerCollections(eleventyConfig, options);
   }
-
-  registerBrowserSync404(eleventyConfig, options);
 }

@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -21,9 +20,8 @@ function packageRoot(packageName) {
   }
 }
 
-function uswdsRoot(options) {
-  const localRoot = path.join(options.root, "node_modules", "@uswds", "uswds");
-  return existsSync(localRoot) ? localRoot : packageRoot("@uswds/uswds");
+function uswdsRoot() {
+  return packageRoot("@uswds/uswds");
 }
 
 export const defaultAssetOptions = {
@@ -52,7 +50,11 @@ export const defaultAssetOptions = {
     fontsOutdir: "uswds/fonts",
     imgOutdir: "uswds/img"
   },
-  watch: ["styles", "js"]
+  watch: ["styles", "js"],
+  watchOptions: {
+    usePolling: true,
+    interval: 250
+  }
 };
 
 function resolveAssetOptions(userOptions = {}) {
@@ -73,7 +75,11 @@ function resolveAssetOptions(userOptions = {}) {
       ...defaultAssetOptions.uswds,
       ...(userOptions.uswds || {})
     },
-    watch: userOptions.watch ?? defaultAssetOptions.watch
+    watch: userOptions.watch ?? defaultAssetOptions.watch,
+    watchOptions: {
+      ...defaultAssetOptions.watchOptions,
+      ...(userOptions.watchOptions || {})
+    }
   };
 }
 
@@ -276,7 +282,8 @@ export async function watchAssets(userOptions = {}) {
     awaitWriteFinish: {
       stabilityThreshold: 150,
       pollInterval: 50
-    }
+    },
+    ...options.watchOptions
   });
 
   watcher.on("all", (eventName, changedPath) => {

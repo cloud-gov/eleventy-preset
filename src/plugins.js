@@ -1,5 +1,4 @@
 import path from "node:path";
-import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
 import pluginNavigation from "@11ty/eleventy-navigation";
@@ -20,8 +19,7 @@ function packageRoot(packageName) {
 }
 
 function uswdsRoot() {
-  const localRoot = path.join(process.cwd(), "node_modules", "@uswds", "uswds");
-  return existsSync(localRoot) ? localRoot : packageRoot("@uswds/uswds");
+  return packageRoot("@uswds/uswds");
 }
 
 export async function registerOfficialPlugins(eleventyConfig, options) {

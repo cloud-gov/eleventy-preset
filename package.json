@@ -7,9 +7,15 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./assets": "./src/assets.js"
+    "./assets": "./src/assets.js",
+    "./admin": "./src/admin.js",
+    "./decap-cms-app": "./src/decap-cms-app.js",
+    "./react": "./src/react.js",
+    "./uswds": "./src/uswds.js",
+    "./uswds-init": "./src/uswds-init.js"
   },
   "bin": {
+    "studio-eleventy": "./bin/studio-eleventy.js",
     "studio-eleventy-assets": "./bin/studio-eleventy-assets.js"
   },
   "files": [
@@ -30,7 +36,8 @@
     "@uswds/uswds": "^3.13.0",
     "autoprefixer": "^10.4.24",
     "chokidar": "^5.0.0",
-    "csv-parse": "^5.6.0",
+    "decap-cms": "^3.10.0",
+    "decap-cms-app": "^3.10.0",
     "eleventy-plugin-svg-sprite": "^2.4.6",
     "esbuild": "0.27.3",
     "js-yaml": "^4.1.1",
@@ -39,6 +46,7 @@
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-named-headings": "^1.1.0",
     "postcss": "^8.5.6",
+    "react": "^19.1.0",
     "sass": "^1.97.3"
   },
   "devDependencies": {

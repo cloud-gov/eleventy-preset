@@ -1,21 +1,9 @@
 import fs from "node:fs";
-import { parse } from "csv-parse/sync";
 import yaml from "js-yaml";
 
 export function registerDataExtensions(eleventyConfig, options) {
   if (options.features.yamlData) {
     eleventyConfig.addDataExtension("yaml", (contents) => yaml.load(contents));
-  }
-
-  if (options.features.csvData) {
-    eleventyConfig.addDataExtension("csv", (contents) =>
-      parse(contents, {
-        columns: true,
-        skip_empty_lines: true,
-        relax_column_count: true,
-        trim: true
-      })
-    );
   }
 }
 
