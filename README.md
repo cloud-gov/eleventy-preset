@@ -1,22 +1,21 @@
 # @studio/eleventy-preset
 
-Shared Eleventy v3 preset for Studio-managed USWDS 11ty sites. It centralizes
+Shared Eleventy v3 preset for Studio-managed USWDS 11ty sites. Helps centralizes
 the reusable build and configuration layer while site repos keep site metadata,
 content, CMS schemas, search indexing, deployment settings, and one-off
 collections local.
 
 ## Features
 
-- 🧱 Common dependency ownership for USWDS, Decap CMS, Sass, esbuild, PostCSS,
-  markdown-it, and shared Eleventy utilities.
-- 🔌 Preset-managed Eleventy plugins for navigation, image transforms, optional
-  RSS/render support, HTML base URL handling, and USWDS SVG sprites.
+- 🧱 Common dependency ownership for USWDS, Decap CMS, and shared Eleventy utilities.
+- 🔌 Eleventy plugins for navigation, image transforms, RSS, HTML base URL handling,
+  and USWDS sprites.
 - 🎨 Asset pipeline for Sass, JavaScript bundling, USWDS font/image copying,
   production minification, autoprefixing, and watch-mode rebuilds.
 - 🧩 Shared shortcodes for USWDS icons, YouTube embeds, and optional responsive
   image helpers.
 - 📚 Built-in YAML data support and a reusable `postsByYear` collection helper.
-- 🚀 Single `studio-eleventy` CLI for build, dev server, and asset-only tasks.
+- 🚀 Single `studio-eleventy` CLI for build and dev server.
 
 ## Creating a New Site
 
@@ -305,13 +304,8 @@ module.exports = async function (config) {
 
 ## Runtime Entry Points
 
-The preset also exposes browser entry modules for site JavaScript bundles:
+The preset also exposes browser entry modules for USWDS and Decap CMS JavaScript bundles:
 
 - `@studio/eleventy-preset/uswds`
-  - Imports the preset-owned USWDS JavaScript runtime.
-
 - `@studio/eleventy-preset/uswds-init`
-  - Adds the USWDS loading class and removes it when USWDS is ready or after the fallback timeout.
-
 - `@studio/eleventy-preset/admin`
-  - Exports the preset-owned Decap CMS app object. Site admin bundles should call `CMS.init()` after any custom CMS registrations.
