@@ -670,6 +670,3 @@ The preset also exposes browser entry modules for site JavaScript bundles:
 
 - `@studio/eleventy-preset/admin`
   - Exports the preset-owned Decap CMS app object. Site admin bundles should call `CMS.init()` after any custom CMS registrations.
-
-- `@studio/eleventy-preset/react`
-  - Exports preset-owned React for CMS preview code that needs to create React elements.
