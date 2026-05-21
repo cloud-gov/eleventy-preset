@@ -1,11 +1,22 @@
 # @studio/eleventy-preset
 
-Shared Eleventy v3 preset for Studio-managed USWDS 11ty sites.
+Shared Eleventy v3 preset for Studio-managed USWDS 11ty sites. It centralizes
+the reusable build and configuration layer while site repos keep site metadata,
+content, CMS schemas, search indexing, deployment settings, and one-off
+collections local.
 
-The preset owns common Eleventy plugin registration, filters, shortcodes,
-Markdown setup, data extensions, common collection helpers, and the shared
-asset build CLI. Site repos keep site metadata, content, CMS schemas, search
-indexing, deployment settings, and one-off collections local.
+## Features
+
+- 🧱 Common dependency ownership for USWDS, Decap CMS, Sass, esbuild, PostCSS,
+  markdown-it, and shared Eleventy utilities.
+- 🔌 Preset-managed Eleventy plugins for navigation, image transforms, optional
+  RSS/render support, HTML base URL handling, and USWDS SVG sprites.
+- 🎨 Asset pipeline for Sass, JavaScript bundling, USWDS font/image copying,
+  production minification, autoprefixing, and watch-mode rebuilds.
+- 🧩 Shared shortcodes for USWDS icons, YouTube embeds, and optional responsive
+  image helpers.
+- 📚 Built-in YAML data support and a reusable `postsByYear` collection helper.
+- 🚀 Single `studio-eleventy` CLI for build, dev server, and asset-only tasks.
 
 ## Creating a New Site
 
@@ -23,14 +34,14 @@ npm init -y
 
 ### 2. Install the Site Dependencies
 
-For local sibling development, install the preset with a file dependency:
+Install the preset from the tagged GitHub release:
 
 ```sh
-npm install --save @studio/eleventy-preset@file:../eleventy-preset
+npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.1.0
 npm install --save-dev @11ty/eleventy
 ```
 
-The site should not install `@uswds/uswds`, `decap-cms`, or `decap-cms-app`
+The site should not install `@uswds/uswds` or `decap-cms-app`
 directly unless it has a proven site-specific direct import. The preset owns
 those runtime packages.
 
@@ -60,31 +71,15 @@ module.exports = async function (config) {
   const { default: studioPreset } = await import("@studio/eleventy-preset");
 
   await studioPreset(config, {
-    passthroughCopy: ["admin", "favicon.ico", "img"],
-    collections: {
-      postsByYear: {
-        enabled: false,
-      },
-    },
+    // Example: enable optional Eleventy RSS support.
+    // features: { rss: true },
+    // Example: override the default passthrough copy list.
+    // passthroughCopy: ["admin", "favicon.ico", "img"],
+    // Example: disable the default posts-by-year collection helper.
+    // collections: { postsByYear: { enabled: false } },
   });
-
-  return {
-    templateFormats: ["md", "njk", "html", "liquid"],
-    markdownTemplateEngine: "liquid",
-    htmlTemplateEngine: "liquid",
-    dir: {
-      input: ".",
-      includes: "_includes",
-      data: "_data",
-      output: "_site",
-    },
-  };
 };
 ```
-
-If the new site has dated posts tagged `press-release`, remove the
-`postsByYear.enabled` override and the preset will create the default
-`collections.postsByYear` archive helper.
 
 ### 5. Add the Minimum File Structure
 
@@ -177,10 +172,7 @@ import CMS from "@studio/eleventy-preset/admin";
 CMS.init();
 ```
 
-If the site does not have an admin UI, keep the file as a harmless default or
-override `javascript.entryPoints` in an asset config to remove the admin bundle.
-
-### 10. Add Optional Admin HTML
+### 10. Add Admin HTML
 
 Create `admin/index.html` if the site will use Decap CMS:
 
@@ -240,21 +232,6 @@ _site/assets/uswds/img/
 Use `npm run dev` for local development.
 
 ## Eleventy Preset Options
-
-Pass these options when registering the preset in a site's `.eleventy.js`:
-
-```js
-module.exports = async function (config) {
-  const { default: studioPreset } = await import("@studio/eleventy-preset");
-
-  await studioPreset(config, {
-    pathPrefix: "/",
-    features: {
-      rss: true,
-    },
-  });
-};
-```
 
 Every option is optional. Nested option objects are merged with the defaults
 unless noted otherwise.

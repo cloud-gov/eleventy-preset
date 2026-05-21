@@ -6,7 +6,6 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./assets": "./src/assets.js",
     "./admin": "./src/admin.js",
     "./uswds": "./src/uswds.js",
     "./uswds-init": "./src/uswds-init.js"
