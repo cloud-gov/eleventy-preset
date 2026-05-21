@@ -36,7 +36,7 @@ export const defaultAssetOptions = {
     },
     outdir: "js",
     format: "iife",
-    target: ["chrome58", "firefox57", "safari11", "edge18"]
+    target: ["es2020"]
   },
   sass: {
     entryPoint: "styles/styles.scss",

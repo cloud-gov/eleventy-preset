@@ -176,7 +176,9 @@ require("@studio/eleventy-preset/uswds-init");
 Create `js/admin.js`:
 
 ```js
-require("@studio/eleventy-preset/admin");
+import CMS from "@studio/eleventy-preset/admin";
+
+CMS.init();
 ```
 
 If the site does not have an admin UI, keep the file as a harmless default or
@@ -608,7 +610,7 @@ JavaScript options live under `javascript`.
   - esbuild output format.
 
 - `target`
-  - Default: `["chrome58", "firefox57", "safari11", "edge18"]`.
+  - Default: `["es2020"]`.
   - esbuild browser target list.
 
 ### Sass Asset Options
@@ -667,10 +669,7 @@ The preset also exposes browser entry modules for site JavaScript bundles:
   - Adds the USWDS loading class and removes it when USWDS is ready or after the fallback timeout.
 
 - `@studio/eleventy-preset/admin`
-  - Imports the preset-owned Decap CMS runtime.
-
-- `@studio/eleventy-preset/decap-cms-app`
-  - Exports the preset-owned Decap CMS app object for sites with custom CMS registrations.
+  - Exports the preset-owned Decap CMS app object. Site admin bundles should call `CMS.init()` after any custom CMS registrations.
 
 - `@studio/eleventy-preset/react`
   - Exports preset-owned React for CMS preview code that needs to create React elements.
