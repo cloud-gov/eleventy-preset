@@ -7,16 +7,16 @@ collections local.
 
 ## Features
 
-- 🧱 Common dependency ownership for USWDS, Decap CMS, Sass, esbuild, PostCSS,
-  markdown-it, and shared Eleventy utilities.
-- 🔌 Preset-managed Eleventy plugins for navigation, image transforms, optional
-  RSS/render support, HTML base URL handling, and USWDS SVG sprites.
-- 🎨 Asset pipeline for Sass, JavaScript bundling, USWDS font/image copying,
-  production minification, autoprefixing, and watch-mode rebuilds.
-- 🧩 Shared shortcodes for USWDS icons, YouTube embeds, and optional responsive
-  image helpers.
-- 📚 Built-in YAML data support and a reusable `postsByYear` collection helper.
-- 🚀 Single `studio-eleventy` CLI for build, dev server, and asset-only tasks.
+🧱 Common dependency ownership for USWDS, Decap CMS, Sass, esbuild, PostCSS,
+markdown-it, and shared Eleventy utilities.
+🔌 Preset-managed Eleventy plugins for navigation, image transforms, optional
+RSS/render support, HTML base URL handling, and USWDS SVG sprites.
+🎨 Asset pipeline for Sass, JavaScript bundling, USWDS font/image copying,
+production minification, autoprefixing, and watch-mode rebuilds.
+🧩 Shared shortcodes for USWDS icons, YouTube embeds, and optional responsive
+image helpers.
+📚 Built-in YAML data support and a reusable `postsByYear` collection helper.
+🚀 Single `studio-eleventy` CLI for build, dev server, and asset-only tasks.
 
 ## Creating a New Site
 
