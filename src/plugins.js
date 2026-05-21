@@ -33,10 +33,6 @@ export async function registerOfficialPlugins(eleventyConfig, options) {
     eleventyConfig.addPlugin(pluginNavigation, { immediate: true });
   }
 
-  if (options.features.renderPlugin && eleventy.EleventyRenderPlugin) {
-    eleventyConfig.addPlugin(eleventy.EleventyRenderPlugin, { immediate: true });
-  }
-
   if (options.features.htmlBase) {
     eleventyConfig.addPlugin(eleventy.EleventyHtmlBasePlugin, {
       baseHref: options.pathPrefix,

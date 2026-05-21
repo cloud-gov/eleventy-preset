@@ -10,7 +10,6 @@ export const defaultPresetOptions = {
     markdown: true,
     navigation: true,
     passthroughCopy: true,
-    renderPlugin: false,
     rss: false,
     shortcodes: true,
     svgSprites: true,

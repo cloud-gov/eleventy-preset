@@ -20,6 +20,9 @@ collections local.
 
 ## Creating a New Site
 
+<details>
+<summary>Show setup instructions</summary>
+
 These steps create a small Eleventy site that uses the preset for Eleventy
 configuration, USWDS assets, Sass and JavaScript builds, shared shortcodes, and
 Decap CMS runtime ownership.
@@ -231,344 +234,74 @@ _site/assets/uswds/img/
 
 Use `npm run dev` for local development.
 
+</details>
+
 ## Eleventy Preset Options
 
-Every option is optional. Nested option objects are merged with the defaults
-unless noted otherwise.
-
-### Top-Level Options
-
-- `pathPrefix`
-  - Default: `undefined`, then resolved from the configured environment variable, then normalized to `/`.
-  - Sets the base href used by Eleventy's HTML base plugin.
-  - The `studio-eleventy` CLI also passes Eleventy's `--pathprefix` from `BASEURL` when the environment variable is set, so site configs usually do not need to return `pathPrefix`.
-  - Values are normalized to start with `/` and not end with `/`, except `/` itself.
-
-- `baseUrlEnvironmentVariable`
-  - Default: `"BASEURL"`.
-  - Names the environment variable used as the fallback path prefix when `pathPrefix` is not provided.
-
-- `features`
-  - Default: see the feature list below.
-  - Enables or disables groups of preset behavior.
-
-- `passthroughCopy`
-  - Default: `["admin", "uploads", "favicon.ico", "site.webmanifest", "img"]`.
-  - Replaces the full list of paths passed to `eleventyConfig.addPassthroughCopy`.
-  - Set this to a site-specific array when a site has a different static-file layout.
-
-- `watchTargets`
-  - Default: `["styles", "js"]`.
-  - Replaces the full list of paths passed to `eleventyConfig.addWatchTarget`.
-
-- `markdown`
-  - Default: see the Markdown options below.
-  - Configures the shared Markdown library and Markdown rendering filter.
-
-- `imageTransform`
-  - Default: see the image transform options below.
-  - Passed to `@11ty/eleventy-img`'s image transform plugin when `features.imageTransform` is enabled.
-
-- `collections`
-  - Default: see the collection options below.
-  - Configures the shared collection helpers.
-
-- `imageShortcodes`
-  - Default: see the image shortcode options below.
-  - Configures optional image shortcodes when `features.imageShortcodes` is enabled.
-
-### Feature Flags
-
-Feature flags live under `features`.
-
-- `collections`
-  - Default: `true`.
-  - Registers shared collection helpers, currently `postsByYear`.
-
-- `filters`
-  - Default: `true`.
-  - Registers shared filters: `htmlDateString`.
-
-- `htmlBase`
-  - Default: `true`.
-  - Registers Eleventy's HTML base plugin with `baseHref` set to `pathPrefix`.
-
-- `imageShortcodes`
-  - Default: `false`.
-  - Enables the optional `image`, `image_with_class`, and optionally `image_with_caption` Liquid shortcodes.
-
-- `imageTransform`
-  - Default: `true`.
-  - Registers `@11ty/eleventy-img`'s image transform plugin.
-
-- `markdown`
-  - Default: `true`.
-  - Registers the shared Markdown library and Markdown rendering filter.
-
-- `navigation`
-  - Default: `true`.
-  - Registers `@11ty/eleventy-navigation`.
-
-- `passthroughCopy`
-  - Default: `true`.
-  - Enables copying the paths listed in `passthroughCopy`.
-
-- `renderPlugin`
-  - Default: `false`.
-  - Registers Eleventy's render plugin when a site needs render shortcodes or render helpers.
-
-- `rss`
-  - Default: `false`.
-  - Registers `@11ty/eleventy-plugin-rss`.
-
-- `shortcodes`
-  - Default: `true`.
-  - Registers shared shortcodes, including `uswds_icon` and `youtube`.
-
-- `svgSprites`
-  - Default: `true`.
-  - Registers USWDS SVG sprite shortcodes from the preset-owned USWDS package:
-    `usa_icons_sprite`, `usa_icons`, `uswds_icons_sprite`, and `uswds_icons`.
-
-- `watchTargets`
-  - Default: `true`.
-  - Enables watching the paths listed in `watchTargets`.
-
-- `yamlData`
-  - Default: `true`.
-  - Registers `.yaml` data file support using `js-yaml`.
-
-### Markdown Options
-
-Markdown options live under `markdown`.
-
-- `html`
-  - Default: `true`.
-  - Allows HTML inside Markdown content.
-
-- `breaks`
-  - Default: `false`.
-  - Converts single line breaks in Markdown to `<br>` tags.
-
-- `linkify`
-  - Default: `true`.
-  - Converts plain URLs into links.
-
-- `typographer`
-  - Default: `false`.
-  - Enables Markdown It's typographic replacements.
-
-- `namedHeadings`
-  - Default: `true`.
-  - Enables `markdown-it-named-headings`.
-
-- `pdfLinksNewWindow`
-  - Default: `false`.
-  - Adds `target="_blank"` to Markdown links whose URL ends with `pdf`.
-
-- `markdownFilterName`
-  - Default: `"markdownify"`.
-  - Names the Markdown rendering filter added by the preset.
-  - If this is set to another name, the preset still also registers `markdownify`.
-
-### Image Transform Options
-
-Image transform options live under `imageTransform`.
-
-- `failOnError`
-  - Default: `false`.
-  - Passed through to `@11ty/eleventy-img`'s transform plugin.
-
-- `widths`
-  - Default: `["auto", 600]`.
-  - Sets the generated image widths for the transform plugin.
-
-- `htmlOptions.imgAttributes.loading`
-  - Default: `"lazy"`.
-  - Sets the generated image loading attribute.
-
-- `htmlOptions.imgAttributes.decoding`
-  - Default: `"async"`.
-  - Sets the generated image decoding attribute.
-
-- `htmlOptions.pictureAttributes`
-  - Default: `{}`.
-  - Sets attributes for generated `<picture>` elements.
-
-- `htmlOptions.fallback`
-  - Default: `"largest"`.
-  - Selects the fallback image behavior used by the transform plugin.
-
-Other `imageTransform` options are passed through to the underlying image
-transform plugin.
-
-### Collection Options
-
-Collection options live under `collections`.
-
-- `collections.postsByYear.enabled`
-  - Default: `true`.
-  - Enables a grouped archive collection.
-
-- `collections.postsByYear.tag`
-  - Default: `"press-release"`.
-  - Selects the tag used to find posts for the archive collection.
-
-- `collections.postsByYear.name`
-  - Default: `"postsByYear"`.
-  - Names the generated collection.
-  - The collection returns `[year, posts]` pairs, newest source posts first.
-
-### Image Shortcode Options
-
-Image shortcode options live under `imageShortcodes`. These only matter when
-`features.imageShortcodes` is `true`.
-
-- `outputDir`
-  - Default: `"./_site/img/"`.
-  - Sets the output directory used by the shortcode-generated images.
-
-- `includeCaption`
-  - Default: `false`.
-  - Enables the `image_with_caption` shortcode.
-  - Without this option, only `image` and `image_with_class` are registered.
-
-## Asset Builder Options
-
-The `studio-eleventy assets` command uses the defaults below. To override them,
-create a JavaScript config file and pass it with `--config`:
+Most sites can call `await studioPreset(config);` without passing options. When
+a site needs to override preset behavior, pass a second argument. This example
+shows the public options with their default values.
 
 ```js
-export default {
-  outputDir: "_site/assets",
-  javascript: {
-    entryPoints: {
-      app: "js/app.js",
+module.exports = async function (config) {
+  const { default: studioPreset } = await import("@studio/eleventy-preset");
+
+  await studioPreset(config, {
+    features: {
+      htmlBase: true, // false skips Eleventy's HTML base plugin.
+      imageShortcodes: false, // true enables image, image_with_class, and image_with_caption.
+      imageTransform: true, // false skips @11ty/eleventy-img transforms.
+      navigation: true, // false skips @11ty/eleventy-navigation.
+      rss: false, // true enables @11ty/eleventy-plugin-rss.
     },
-  },
+
+    passthroughCopy: [
+      "admin",
+      "uploads",
+      "favicon.ico",
+      "site.webmanifest",
+      "img",
+    ], // Replace for a different static-file layout.
+    watchTargets: ["styles", "js"], // Replace when extra Eleventy watch paths are needed.
+
+    markdown: {
+      html: true, // false escapes HTML in Markdown content.
+      breaks: false, // true converts single line breaks to <br> tags.
+      linkify: true, // false disables automatic links for plain URLs.
+      typographer: false, // true enables Markdown It's typographic replacements.
+      namedHeadings: true, // false disables markdown-it-named-headings.
+      pdfLinksNewWindow: false, // true opens Markdown PDF links in a new window.
+      markdownFilterName: "markdownify", // Change to rename the Markdown rendering filter.
+    },
+
+    imageTransform: {
+      failOnError: false, // true fails the build when image transforms fail.
+      widths: ["auto", 600], // Change to generate a different responsive image set.
+      htmlOptions: {
+        imgAttributes: {
+          loading: "lazy", // Change for eager images.
+          decoding: "async", // Change when synchronous decoding is required.
+        },
+        pictureAttributes: {}, // Add attributes for generated <picture> elements.
+        fallback: "largest", // Change to use a different transform plugin fallback.
+      },
+    },
+
+    collections: {
+      postsByYear: {
+        enabled: true, // false disables this grouped archive collection.
+        tag: "press-release", // Change to group a different tagged collection.
+        name: "postsByYear", // Change to expose the collection under a different name.
+      },
+    },
+
+    imageShortcodes: {
+      outputDir: "./_site/img/", // Change where shortcode-generated images are written.
+      includeCaption: false, // true also enables image_with_caption.
+    },
+  });
 };
 ```
-
-```sh
-studio-eleventy assets --config ./asset.config.js
-```
-
-The config file may export either `default` or `assetOptions`.
-
-The `build` and `dev` commands run asset processing automatically and accept the
-same asset config flag:
-
-```sh
-studio-eleventy build --config ./asset.config.js
-studio-eleventy dev --config ./asset.config.js
-```
-
-Pass extra Eleventy arguments after `--`:
-
-```sh
-studio-eleventy dev -- --incremental
-```
-
-### Top-Level Asset Options
-
-- `root`
-  - Default: `process.cwd()`.
-  - Base directory used to resolve relative input paths.
-
-- `outputDir`
-  - Default: `"_site/assets"`.
-  - Base output directory for built assets.
-
-- `production`
-  - Default: `process.env.ELEVENTY_ENV === "production"`.
-  - Enables minified JavaScript, compressed Sass output, and production CSS autoprefixing.
-
-- `watch`
-  - Default: `["styles", "js"]`.
-  - Directories watched by `studio-eleventy assets --watch`.
-
-- `watchOptions`
-  - Default: `{ usePolling: true, interval: 250 }`.
-  - Chokidar options used by the asset watcher.
-  - Polling is the default because it avoids local `fs.watch` file-handle limits on macOS.
-
-- `skipInitialBuild`
-  - Default: not set.
-  - Only used with `--watch`; `--skip-initial` starts watching without first running a full build.
-
-### JavaScript Asset Options
-
-JavaScript options live under `javascript`.
-
-- `entryPoints`
-  - Default:
-    ```js
-    {
-      app: "js/app.js",
-      admin: "js/admin.js",
-      "uswds-init": "js/uswds-init.js"
-    }
-    ```
-  - Maps output names to source entry files.
-  - With the default `outdir`, these become `/assets/js/app.js`, `/assets/js/admin.js`, and `/assets/js/uswds-init.js`.
-  - This object replaces the default entry point object when provided.
-
-- `outdir`
-  - Default: `"js"`.
-  - Subdirectory under `outputDir` for JavaScript output.
-
-- `format`
-  - Default: `"iife"`.
-  - esbuild output format.
-
-- `target`
-  - Default: `["es2020"]`.
-  - esbuild browser target list.
-
-### Sass Asset Options
-
-Sass options live under `sass`.
-
-- `entryPoint`
-  - Default: `"styles/styles.scss"`.
-  - Main Sass file to compile.
-
-- `outdir`
-  - Default: `"styles"`.
-  - Subdirectory under `outputDir` for CSS output.
-
-- `filename`
-  - Default: `"styles.css"`.
-  - Output CSS filename.
-
-- `quietDeps`
-  - Default: `true`.
-  - Passed to Sass to quiet dependency warnings.
-
-- `silenceDeprecations`
-  - Default: `["import", "global-builtin", "if-function"]`.
-  - Sass deprecation warnings to silence.
-
-- `loadPaths`
-  - Default: not set.
-  - Additional Sass load paths, resolved from `root`.
-  - The preset always adds the preset-owned USWDS package paths.
-
-### USWDS Asset Options
-
-USWDS asset options live under `uswds`.
-
-- `copyAssets`
-  - Default: `true`.
-  - Copies USWDS fonts and images from the preset-owned USWDS package.
-
-- `fontsOutdir`
-  - Default: `"uswds/fonts"`.
-  - Output subdirectory for USWDS fonts.
-
-- `imgOutdir`
-  - Default: `"uswds/img"`.
-  - Output subdirectory for USWDS images.
 
 ## Runtime Entry Points
 
