@@ -321,7 +321,7 @@ Feature flags live under `features`.
 
 - `filters`
   - Default: `true`.
-  - Registers shared filters: `readableDate`, `htmlDateString`, `head`, and `min`.
+  - Registers shared filters: `htmlDateString`.
 
 - `htmlBase`
   - Default: `true`.
