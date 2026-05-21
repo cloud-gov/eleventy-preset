@@ -1,5 +1,5 @@
 import { registerCollections } from "./collections.js";
-import { registerBaseUrlGlobalData, registerDataExtensions } from "./data.js";
+import { registerDataExtensions } from "./data.js";
 import { resolvePresetOptions, defaultPresetOptions, normalizePathPrefix } from "./defaults.js";
 import { registerFilters } from "./filters.js";
 import { registerMarkdown } from "./markdown.js";
@@ -28,7 +28,6 @@ export default async function studioEleventyPreset(eleventyConfig, userOptions =
   }
 
   registerDataExtensions(eleventyConfig, options);
-  registerBaseUrlGlobalData(eleventyConfig, options);
 
   if (options.features.filters) {
     registerFilters(eleventyConfig, options);

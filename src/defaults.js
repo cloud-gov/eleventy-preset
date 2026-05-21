@@ -2,7 +2,6 @@ export const defaultPresetOptions = {
   pathPrefix: undefined,
   baseUrlEnvironmentVariable: "BASEURL",
   features: {
-    baseUrlGlobalData: false,
     collections: true,
     filters: true,
     htmlBase: true,
@@ -51,16 +50,6 @@ export const defaultPresetOptions = {
   imageShortcodes: {
     outputDir: "./_site/img/",
     includeCaption: false
-  },
-  baseUrlGlobalData: {
-    dataFile: "./_data/site.yaml",
-    globalName: "baseUrl",
-    branchEnvironmentVariable: "BRANCH",
-    domainsKey: "domains",
-    localKey: "local",
-    productionBranch: "main",
-    productionKey: "prod",
-    stagingKey: "staging"
   }
 };
 
@@ -114,10 +103,6 @@ export function resolvePresetOptions(userOptions = {}, environment = process.env
     imageShortcodes: {
       ...defaultPresetOptions.imageShortcodes,
       ...(userOptions.imageShortcodes || {})
-    },
-    baseUrlGlobalData: {
-      ...defaultPresetOptions.baseUrlGlobalData,
-      ...(userOptions.baseUrlGlobalData || {})
     },
     passthroughCopy: userOptions.passthroughCopy ?? defaultPresetOptions.passthroughCopy,
     watchTargets: userOptions.watchTargets ?? defaultPresetOptions.watchTargets

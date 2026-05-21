@@ -26,25 +26,39 @@ export async function registerOfficialPlugins(eleventyConfig, options) {
   const eleventy = await import("@11ty/eleventy");
 
   if (options.features.rss) {
-    eleventyConfig.addPlugin(pluginRss);
+    eleventyConfig.addPlugin(pluginRss, { immediate: true });
   }
 
   if (options.features.navigation) {
-    eleventyConfig.addPlugin(pluginNavigation);
+    eleventyConfig.addPlugin(pluginNavigation, { immediate: true });
   }
 
   if (options.features.renderPlugin && eleventy.EleventyRenderPlugin) {
-    eleventyConfig.addPlugin(eleventy.EleventyRenderPlugin);
+    eleventyConfig.addPlugin(eleventy.EleventyRenderPlugin, { immediate: true });
   }
 
   if (options.features.htmlBase) {
     eleventyConfig.addPlugin(eleventy.EleventyHtmlBasePlugin, {
-      baseHref: options.pathPrefix
+      baseHref: options.pathPrefix,
+      immediate: true
     });
+
+    if (options.pathPrefix !== "/") {
+      eleventyConfig.addTransform("studioPathPrefixDedupe", (content) => {
+        if (typeof content !== "string") {
+          return content;
+        }
+
+        return content.split(`${options.pathPrefix}${options.pathPrefix}`).join(options.pathPrefix);
+      });
+    }
   }
 
   if (options.features.imageTransform) {
-    eleventyConfig.addPlugin(eleventyImageTransformPlugin, options.imageTransform);
+    eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+      ...options.imageTransform,
+      immediate: true
+    });
   }
 }
 

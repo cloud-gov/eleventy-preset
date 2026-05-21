@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildAll, watchAssets } from "../src/assets.js";
+import { normalizePathPrefix } from "../src/defaults.js";
 
 function readFlagValue(args, flagName) {
   const index = args.indexOf(flagName);
@@ -17,6 +18,18 @@ function splitArgs(args) {
   }
 
   return [args.slice(0, separator), args.slice(separator + 1)];
+}
+
+function hasPathPrefixArg(args) {
+  return args.some((arg) => arg === "--pathprefix" || arg.startsWith("--pathprefix="));
+}
+
+function withDefaultPathPrefix(args, env) {
+  if (!env.BASEURL || hasPathPrefixArg(args)) {
+    return args;
+  }
+
+  return [...args, "--pathprefix", normalizePathPrefix(env.BASEURL)];
 }
 
 async function loadConfig(configPath) {
@@ -112,7 +125,7 @@ async function runBuild(args) {
     ...options,
     production: env.ELEVENTY_ENV === "production"
   });
-  await run("eleventy", eleventyArgs, env);
+  await run("eleventy", withDefaultPathPrefix(eleventyArgs, env), env);
 }
 
 async function runDev(args) {
@@ -122,7 +135,10 @@ async function runDev(args) {
     ELEVENTY_ENV: process.env.ELEVENTY_ENV || "development"
   };
   const options = await loadConfig(readFlagValue(studioArgs, "--config"));
-  const serveArgs = eleventyArgs.length ? eleventyArgs : ["--serve", "--watch"];
+  const serveArgs = withDefaultPathPrefix(
+    eleventyArgs.length ? eleventyArgs : ["--serve", "--watch"],
+    env
+  );
 
   await buildAll({
     ...options,

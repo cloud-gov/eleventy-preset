@@ -57,12 +57,9 @@ Create `.eleventy.js`:
 
 ```js
 module.exports = async function (config) {
-  const { default: studioPreset, normalizePathPrefix } =
-    await import("@studio/eleventy-preset");
-  const pathPrefix = normalizePathPrefix(process.env.BASEURL || "/");
+  const { default: studioPreset } = await import("@studio/eleventy-preset");
 
-  await config.addPlugin(studioPreset, {
-    pathPrefix,
+  await studioPreset(config, {
     passthroughCopy: ["admin", "favicon.ico", "img"],
     collections: {
       postsByYear: {
@@ -75,7 +72,6 @@ module.exports = async function (config) {
     templateFormats: ["md", "njk", "html", "liquid"],
     markdownTemplateEngine: "liquid",
     htmlTemplateEngine: "liquid",
-    pathPrefix,
     dir: {
       input: ".",
       includes: "_includes",
@@ -251,7 +247,7 @@ Pass these options when registering the preset in a site's `.eleventy.js`:
 module.exports = async function (config) {
   const { default: studioPreset } = await import("@studio/eleventy-preset");
 
-  await config.addPlugin(studioPreset, {
+  await studioPreset(config, {
     pathPrefix: "/",
     features: {
       rss: true,
@@ -267,7 +263,8 @@ unless noted otherwise.
 
 - `pathPrefix`
   - Default: `undefined`, then resolved from the configured environment variable, then normalized to `/`.
-  - Sets the Eleventy path prefix and the base href used by Eleventy's HTML base plugin.
+  - Sets the base href used by Eleventy's HTML base plugin.
+  - The `studio-eleventy` CLI also passes Eleventy's `--pathprefix` from `BASEURL` when the environment variable is set, so site configs usually do not need to return `pathPrefix`.
   - Values are normalized to start with `/` and not end with `/`, except `/` itself.
 
 - `baseUrlEnvironmentVariable`
@@ -303,17 +300,9 @@ unless noted otherwise.
   - Default: see the image shortcode options below.
   - Configures optional image shortcodes when `features.imageShortcodes` is enabled.
 
-- `baseUrlGlobalData`
-  - Default: see the base URL global data options below.
-  - Configures optional global `baseUrl` data when `features.baseUrlGlobalData` is enabled.
-
 ### Feature Flags
 
 Feature flags live under `features`.
-
-- `baseUrlGlobalData`
-  - Default: `false`.
-  - When enabled, reads domain settings from a YAML data file and adds a global base URL value.
 
 - `collections`
   - Default: `true`.
@@ -466,44 +455,6 @@ Image shortcode options live under `imageShortcodes`. These only matter when
   - Default: `false`.
   - Enables the `image_with_caption` shortcode.
   - Without this option, only `image` and `image_with_class` are registered.
-
-### Base URL Global Data Options
-
-Base URL global data options live under `baseUrlGlobalData`. These only matter
-when `features.baseUrlGlobalData` is `true`.
-
-- `dataFile`
-  - Default: `"./_data/site.yaml"`.
-  - YAML file read for domain settings.
-
-- `globalName`
-  - Default: `"baseUrl"`.
-  - Name of the global data value added to Eleventy.
-
-- `branchEnvironmentVariable`
-  - Default: `"BRANCH"`.
-  - Environment variable used to decide whether to use production or staging domains.
-
-- `domainsKey`
-  - Default: `"domains"`.
-  - Key inside the YAML file that contains domain values.
-
-- `localKey`
-  - Default: `"local"`.
-  - Domain key used when no branch environment variable is present.
-
-- `productionBranch`
-  - Default: `"main"`.
-  - Branch name that should use the production domain.
-
-- `productionKey`
-  - Default: `"prod"`.
-  - Domain key used for the production branch.
-
-- `stagingKey`
-  - Default: `"staging"`.
-  - Domain key used for non-production branches.
-  - The branch name is appended to this value.
 
 ## Asset Builder Options
 
