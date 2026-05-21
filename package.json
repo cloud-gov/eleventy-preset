@@ -12,8 +12,7 @@
     "./uswds-init": "./src/uswds-init.js"
   },
   "bin": {
-    "studio-eleventy": "./bin/studio-eleventy.js",
-    "studio-eleventy-assets": "./bin/studio-eleventy-assets.js"
+    "studio-eleventy": "./bin/studio-eleventy.js"
   },
   "files": [
     "bin",

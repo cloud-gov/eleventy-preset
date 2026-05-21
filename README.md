@@ -458,7 +458,7 @@ Image shortcode options live under `imageShortcodes`. These only matter when
 
 ## Asset Builder Options
 
-The `studio-eleventy-assets` CLI uses the defaults below. To override them,
+The `studio-eleventy assets` command uses the defaults below. To override them,
 create a JavaScript config file and pass it with `--config`:
 
 ```js
@@ -473,12 +473,13 @@ export default {
 ```
 
 ```sh
-studio-eleventy-assets --config ./asset.config.js
+studio-eleventy assets --config ./asset.config.js
 ```
 
 The config file may export either `default` or `assetOptions`.
 
-The combined `studio-eleventy` command accepts the same asset config flag:
+The `build` and `dev` commands run asset processing automatically and accept the
+same asset config flag:
 
 ```sh
 studio-eleventy build --config ./asset.config.js
@@ -507,7 +508,7 @@ studio-eleventy dev -- --incremental
 
 - `watch`
   - Default: `["styles", "js"]`.
-  - Directories watched by `studio-eleventy-assets --watch`.
+  - Directories watched by `studio-eleventy assets --watch`.
 
 - `watchOptions`
   - Default: `{ usePolling: true, interval: 250 }`.

@@ -195,10 +195,25 @@ async function runDev(args) {
   process.exit(0);
 }
 
+async function runAssets(args) {
+  const options = await loadConfig(readFlagValue(args, "--config"));
+
+  if (args.includes("--watch")) {
+    await watchAssets({
+      ...options,
+      skipInitialBuild: args.includes("--skip-initial")
+    });
+    return;
+  }
+
+  await buildAll(options);
+}
+
 function printUsage() {
   console.error(`Usage:
   studio-eleventy build [--config ./asset.config.js] [-- <eleventy args>]
-  studio-eleventy dev [--config ./asset.config.js] [-- <eleventy args>]`);
+  studio-eleventy dev [--config ./asset.config.js] [-- <eleventy args>]
+  studio-eleventy assets [--config ./asset.config.js] [--watch] [--skip-initial]`);
 }
 
 const [command, ...args] = process.argv.slice(2);
@@ -208,6 +223,8 @@ try {
     await runBuild(args);
   } else if (command === "dev") {
     await runDev(args);
+  } else if (command === "assets") {
+    await runAssets(args);
   } else {
     printUsage();
     process.exitCode = 1;
