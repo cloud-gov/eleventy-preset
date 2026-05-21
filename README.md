@@ -317,11 +317,11 @@ Feature flags live under `features`.
 
 - `collections`
   - Default: `true`.
-  - Registers shared collection helpers, currently `postsByYear` and optional `tagList`.
+  - Registers shared collection helpers, currently `postsByYear`.
 
 - `filters`
   - Default: `true`.
-  - Registers shared filters: `readableDate`, `htmlDateString`, `head`, `min`, and `filterTagList`.
+  - Registers shared filters: `readableDate`, `htmlDateString`, `head`, and `min`.
 
 - `htmlBase`
   - Default: `true`.
@@ -363,11 +363,6 @@ Feature flags live under `features`.
   - Default: `true`.
   - Registers USWDS SVG sprite shortcodes from the preset-owned USWDS package:
     `usa_icons_sprite`, `usa_icons`, `uswds_icons_sprite`, and `uswds_icons`.
-
-- `tagList`
-  - Default: `false`.
-  - Alternative switch for enabling the `tagList` collection.
-  - `collections.tagList.enabled` can also enable it.
 
 - `watchTargets`
   - Default: `true`.
@@ -457,18 +452,6 @@ Collection options live under `collections`.
   - Default: `"postsByYear"`.
   - Names the generated collection.
   - The collection returns `[year, posts]` pairs, newest source posts first.
-
-- `collections.tagList.enabled`
-  - Default: `false`.
-  - Enables a collection of all tags found in the site, after ignored tags are removed.
-
-- `collections.tagList.name`
-  - Default: `"tagList"`.
-  - Names the generated tag collection.
-
-- `collections.tagList.ignoredTags`
-  - Default: `["all", "nav", "post", "posts"]`.
-  - Lists tags excluded from `tagList` and from the `filterTagList` filter.
 
 ### Image Shortcode Options
 

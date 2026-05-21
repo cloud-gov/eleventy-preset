@@ -15,7 +15,6 @@ export const defaultPresetOptions = {
     rss: false,
     shortcodes: true,
     svgSprites: true,
-    tagList: false,
     watchTargets: true,
     yamlData: true
   },
@@ -47,11 +46,6 @@ export const defaultPresetOptions = {
       enabled: true,
       tag: "press-release",
       name: "postsByYear"
-    },
-    tagList: {
-      enabled: false,
-      name: "tagList",
-      ignoredTags: ["all", "nav", "post", "posts"]
     }
   },
   imageShortcodes: {
@@ -115,10 +109,6 @@ export function resolvePresetOptions(userOptions = {}, environment = process.env
       postsByYear: {
         ...defaultPresetOptions.collections.postsByYear,
         ...(userOptions.collections?.postsByYear || {})
-      },
-      tagList: {
-        ...defaultPresetOptions.collections.tagList,
-        ...(userOptions.collections?.tagList || {})
       }
     },
     imageShortcodes: {

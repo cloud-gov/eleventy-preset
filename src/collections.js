@@ -1,5 +1,3 @@
-import { filterTagList } from "./filters.js";
-
 export function registerCollections(eleventyConfig, options) {
   const postsByYear = options.collections.postsByYear;
 
@@ -13,19 +11,6 @@ export function registerCollections(eleventyConfig, options) {
         year,
         posts.filter((post) => post.date.getFullYear() === year)
       ]);
-    });
-  }
-
-  const tagList = options.collections.tagList;
-
-  if (tagList?.enabled || options.features.tagList) {
-    eleventyConfig.addCollection(tagList.name, (collection) => {
-      const tagSet = new Set();
-      collection.getAll().forEach((item) => {
-        (item.data.tags || []).forEach((tag) => tagSet.add(tag));
-      });
-
-      return filterTagList([...tagSet], tagList.ignoredTags);
     });
   }
 }
