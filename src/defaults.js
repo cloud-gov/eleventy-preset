@@ -4,6 +4,7 @@ export const defaultPresetOptions = {
   features: {
     collections: true,
     filters: true,
+    govBanner: true,
     htmlBase: true,
     imageShortcodes: false,
     imageTransform: true,
@@ -11,12 +12,19 @@ export const defaultPresetOptions = {
     navigation: true,
     passthroughCopy: true,
     rss: false,
+    sharedTemplates: true,
     shortcodes: true,
     svgSprites: true,
     watchTargets: true,
-    yamlData: true
+    yamlData: true,
   },
-  passthroughCopy: ["admin", "uploads", "favicon.ico", "site.webmanifest", "img"],
+  passthroughCopy: [
+    "admin",
+    "uploads",
+    "favicon.ico",
+    "site.webmanifest",
+    "img",
+  ],
   watchTargets: ["styles", "js"],
   markdown: {
     html: true,
@@ -25,7 +33,7 @@ export const defaultPresetOptions = {
     typographer: false,
     namedHeadings: true,
     pdfLinksNewWindow: false,
-    markdownFilterName: "markdownify"
+    markdownFilterName: "markdownify",
   },
   imageTransform: {
     failOnError: false,
@@ -33,23 +41,23 @@ export const defaultPresetOptions = {
     htmlOptions: {
       imgAttributes: {
         loading: "lazy",
-        decoding: "async"
+        decoding: "async",
       },
       pictureAttributes: {},
-      fallback: "largest"
-    }
+      fallback: "largest",
+    },
   },
   collections: {
     postsByYear: {
       enabled: true,
       tag: "press-release",
-      name: "postsByYear"
-    }
+      name: "postsByYear",
+    },
   },
   imageShortcodes: {
     outputDir: "./_site/img/",
-    includeCaption: false
-  }
+    includeCaption: false,
+  },
 };
 
 export function normalizePathPrefix(value) {
@@ -62,10 +70,16 @@ export function normalizePathPrefix(value) {
   return pathPrefix.replace(/\/+$/, "") || "/";
 }
 
-export function resolvePresetOptions(userOptions = {}, environment = process.env) {
+export function resolvePresetOptions(
+  userOptions = {},
+  environment = process.env,
+) {
   const envPathPrefix =
     userOptions.pathPrefix ??
-    environment[userOptions.baseUrlEnvironmentVariable || defaultPresetOptions.baseUrlEnvironmentVariable];
+    environment[
+      userOptions.baseUrlEnvironmentVariable ||
+        defaultPresetOptions.baseUrlEnvironmentVariable
+    ];
 
   return {
     ...defaultPresetOptions,
@@ -73,11 +87,11 @@ export function resolvePresetOptions(userOptions = {}, environment = process.env
     pathPrefix: normalizePathPrefix(envPathPrefix),
     features: {
       ...defaultPresetOptions.features,
-      ...(userOptions.features || {})
+      ...(userOptions.features || {}),
     },
     markdown: {
       ...defaultPresetOptions.markdown,
-      ...(userOptions.markdown || {})
+      ...(userOptions.markdown || {}),
     },
     imageTransform: {
       ...defaultPresetOptions.imageTransform,
@@ -87,23 +101,24 @@ export function resolvePresetOptions(userOptions = {}, environment = process.env
         ...(userOptions.imageTransform?.htmlOptions || {}),
         imgAttributes: {
           ...defaultPresetOptions.imageTransform.htmlOptions.imgAttributes,
-          ...(userOptions.imageTransform?.htmlOptions?.imgAttributes || {})
-        }
-      }
+          ...(userOptions.imageTransform?.htmlOptions?.imgAttributes || {}),
+        },
+      },
     },
     collections: {
       ...defaultPresetOptions.collections,
       ...(userOptions.collections || {}),
       postsByYear: {
         ...defaultPresetOptions.collections.postsByYear,
-        ...(userOptions.collections?.postsByYear || {})
-      }
+        ...(userOptions.collections?.postsByYear || {}),
+      },
     },
     imageShortcodes: {
       ...defaultPresetOptions.imageShortcodes,
-      ...(userOptions.imageShortcodes || {})
+      ...(userOptions.imageShortcodes || {}),
     },
-    passthroughCopy: userOptions.passthroughCopy ?? defaultPresetOptions.passthroughCopy,
-    watchTargets: userOptions.watchTargets ?? defaultPresetOptions.watchTargets
+    passthroughCopy:
+      userOptions.passthroughCopy ?? defaultPresetOptions.passthroughCopy,
+    watchTargets: userOptions.watchTargets ?? defaultPresetOptions.watchTargets,
   };
 }
