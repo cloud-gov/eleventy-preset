@@ -6,13 +6,13 @@ import {
   normalizePathPrefix,
 } from "./defaults.js";
 import { registerFilters } from "./filters.js";
+import { registerLiquid } from "./liquid.js";
 import { registerMarkdown } from "./markdown.js";
 import {
   registerPassthroughCopy,
   registerWatchTargets,
 } from "./passthrough.js";
 import { registerOfficialPlugins, registerSvgSprites } from "./plugins.js";
-import { registerSharedTemplates } from "./templates.js";
 import { registerShortcodes } from "./shortcodes.js";
 
 export {
@@ -46,16 +46,14 @@ export default async function studioEleventyPreset(
 
   registerDataExtensions(eleventyConfig, options);
 
+  registerLiquid(eleventyConfig, options);
+
   if (options.features.filters) {
     registerFilters(eleventyConfig, options);
   }
 
   if (options.features.markdown) {
     registerMarkdown(eleventyConfig, options);
-  }
-
-  if (options.features.sharedTemplates) {
-    registerSharedTemplates(eleventyConfig, options);
   }
 
   if (options.features.shortcodes) {

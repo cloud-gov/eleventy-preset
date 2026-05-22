@@ -4,7 +4,6 @@ export const defaultPresetOptions = {
   features: {
     collections: true,
     filters: true,
-    govBanner: true,
     htmlBase: true,
     imageShortcodes: false,
     imageTransform: true,
@@ -12,7 +11,6 @@ export const defaultPresetOptions = {
     navigation: true,
     passthroughCopy: true,
     rss: false,
-    sharedTemplates: true,
     shortcodes: true,
     svgSprites: true,
     watchTargets: true,
