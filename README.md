@@ -43,7 +43,7 @@ npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.1
 npm install --save-dev @11ty/eleventy
 ```
 
-The site should not install `@uswds/uswds` or `decap-cms-app`
+The site should not install `@uswds/uswds` or `decap-cms`
 directly unless it has a proven site-specific direct import. The preset owns
 those runtime packages.
 
