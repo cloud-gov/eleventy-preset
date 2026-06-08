@@ -1,8 +1,16 @@
+import { registerUswdsAccordionEditorComponent } from "./admin/uswds-accordion-editor-component.js";
+
 if (typeof window !== "undefined") {
   window.CMS_MANUAL_INIT = true;
 }
 
-const cmsPromise = import("decap-cms").then((module) => module.default ?? module);
+const cmsReadyPromise = import("decap-cms").then((module) => {
+  const CMS = module.default ?? module;
+
+  registerUswdsAccordionEditorComponent(CMS);
+
+  return CMS;
+});
 
 const CMS = new Proxy(
   {},
@@ -13,7 +21,7 @@ const CMS = new Proxy(
       }
 
       return (...args) =>
-        cmsPromise.then((cms) => {
+        cmsReadyPromise.then((cms) => {
           const value = cms[prop];
 
           if (typeof value !== "function") {

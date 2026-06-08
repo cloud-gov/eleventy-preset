@@ -39,7 +39,7 @@ npm init -y
 Install the preset from the tagged GitHub release:
 
 ```sh
-npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.1.0
+npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.3.0
 npm install --save-dev @11ty/eleventy
 ```
 
@@ -194,6 +194,11 @@ Create `admin/index.html` if the site will use Decap CMS:
 Keep `admin/config.yml`, collections, media folders, editorial workflow
 settings, and custom CMS registrations local to the site.
 
+The preset admin entry automatically registers the shared USWDS Accordion
+editor component before `CMS.init()`. Sites using
+`@studio/eleventy-preset/admin` do not need custom registration code or
+`admin/config.yml` changes for this component.
+
 ### 11. Add Sass
 
 Create `styles/styles.scss`:
@@ -309,3 +314,42 @@ The preset also exposes browser entry modules for USWDS and Decap CMS JavaScript
 - `@studio/eleventy-preset/uswds`
 - `@studio/eleventy-preset/uswds-init`
 - `@studio/eleventy-preset/admin`
+
+## USWDS Accordion Editor Component
+
+Sites on `@studio/eleventy-preset` v0.3.0 or later get a Decap CMS Markdown
+editor component labeled `USWDS Accordion` automatically through:
+
+```js
+import CMS from "@studio/eleventy-preset/admin";
+
+CMS.init();
+```
+
+After updating to v0.3.0, rebuild the site admin bundle so the preset admin
+entry includes the component registration.
+
+Supported fields:
+
+- `bordered`: boolean, default `false`
+- `allow_multiple`: boolean, default `false`
+- `items`: list of accordion items
+- item `title`: string
+- item `content`: Markdown
+- item `open`: boolean, default `false`
+
+The editor saves a re-editable Liquid paired shortcode block with YAML instead
+of generated HTML:
+
+```liquid
+{% uswds_accordion bordered=false allow_multiple=false %}
+items:
+  - title: "First item"
+    open: false
+    content: |-
+      Markdown body.
+{% enduswds_accordion %}
+```
+
+Item content is rendered as Markdown only. Embedded Liquid tags, Liquid output,
+and shortcodes inside item content are preserved as text and are not executed.

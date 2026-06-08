@@ -1,5 +1,11 @@
 import path from "node:path";
 import Image from "@11ty/eleventy-img";
+import {
+  normalizeAccordionData,
+  parseAccordionAttributes,
+  parseAccordionYaml,
+  renderUswdsAccordion,
+} from "./uswds-accordion.js";
 
 function escapeAttribute(value) {
   return String(value || "")
@@ -20,6 +26,49 @@ function getYouTubeEmbedUrl(videoUrl) {
   }
 
   return `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
+}
+
+function getRawTokenText(token) {
+  if (!token || typeof token.input !== "string") {
+    return "";
+  }
+
+  return token.input.slice(token.begin, token.end);
+}
+
+function registerUswdsAccordionShortcode(liquidEngine, markdownLibrary) {
+  if (!liquidEngine || typeof liquidEngine.registerTag !== "function") {
+    return;
+  }
+
+  liquidEngine.registerTag("uswds_accordion", {
+    parse(tagToken, remainTokens) {
+      this.attributeText = tagToken.args;
+      this.accordionIndex = (tagToken.begin || 0) + 1;
+      this.rawTokens = [];
+
+      const stream = liquidEngine.parser
+        .parseStream(remainTokens)
+        .on("template", (template) => this.rawTokens.push(template.token))
+        .on("tag:enduswds_accordion", () => stream.stop())
+        .on("end", () => {
+          throw new Error(`tag ${tagToken.raw} not closed`);
+        });
+
+      stream.start();
+    },
+    *render() {
+      const body = this.rawTokens.map(getRawTokenText).join("");
+      const data = normalizeAccordionData({
+        ...parseAccordionAttributes(this.attributeText),
+        ...parseAccordionYaml(body),
+      });
+
+      return renderUswdsAccordion(data, markdownLibrary, {
+        accordionIndex: this.accordionIndex,
+      });
+    },
+  });
 }
 
 async function imageWithClassShortcode(src, cls, alt, outputDir) {
@@ -55,7 +104,9 @@ async function imageWithCaptionShortcode(src, cls, alt, caption, outputDir) {
       </figure>`;
 }
 
-export function registerShortcodes(eleventyConfig, options) {
+export function registerShortcodes(eleventyConfig, options, context = {}) {
+  registerUswdsAccordionShortcode(context.liquidEngine, context.markdownLibrary);
+
   eleventyConfig.addLiquidShortcode("uswds_icon", function (name, classes = "") {
     return `<svg class="usa-icon ${escapeAttribute(
       classes

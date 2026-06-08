@@ -46,18 +46,23 @@ export default async function studioEleventyPreset(
 
   registerDataExtensions(eleventyConfig, options);
 
-  registerLiquid(eleventyConfig, options);
+  const liquidEngine = registerLiquid(eleventyConfig, options);
 
   if (options.features.filters) {
     registerFilters(eleventyConfig, options);
   }
 
+  let markdownLibrary;
+
   if (options.features.markdown) {
-    registerMarkdown(eleventyConfig, options);
+    markdownLibrary = registerMarkdown(eleventyConfig, options);
   }
 
   if (options.features.shortcodes) {
-    registerShortcodes(eleventyConfig, options);
+    registerShortcodes(eleventyConfig, options, {
+      liquidEngine,
+      markdownLibrary,
+    });
   }
 
   if (options.features.collections) {
