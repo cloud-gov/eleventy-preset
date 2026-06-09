@@ -1,40 +1,10 @@
 import yaml from "js-yaml";
+import { escapeAttribute, escapeHtml, parseBoolean } from "./uswds-utils.js";
 
 export const USWDS_ACCORDION_COMPONENT_ID = "uswds-accordion";
 export const USWDS_ACCORDION_LABEL = "USWDS Accordion";
 export const USWDS_ACCORDION_PATTERN =
   /\{%\s*uswds_accordion\b([^%}]*)%\}\s*\n?([\s\S]*?)\n?\{%\s*enduswds_accordion\s*%\}/;
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function escapeAttribute(value) {
-  return escapeHtml(value);
-}
-
-function parseBoolean(value, defaultValue = false) {
-  if (typeof value === "boolean") {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase();
-    if (["true", "1", "yes", "on"].includes(normalized)) {
-      return true;
-    }
-    if (["false", "0", "no", "off"].includes(normalized)) {
-      return false;
-    }
-  }
-
-  return defaultValue;
-}
 
 function slugify(value) {
   return String(value || "")

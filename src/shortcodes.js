@@ -6,14 +6,12 @@ import {
   parseAccordionYaml,
   renderUswdsAccordion,
 } from "./uswds-accordion.js";
-
-function escapeAttribute(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
+import {
+  normalizeCardGroupData,
+  parseCardGroupYaml,
+  renderUswdsCardGroup,
+} from "./uswds-card-group.js";
+import { escapeAttribute } from "./uswds-utils.js";
 
 function getYouTubeEmbedUrl(videoUrl) {
   const url = new URL(videoUrl);
@@ -71,6 +69,34 @@ function registerUswdsAccordionShortcode(liquidEngine, markdownLibrary) {
   });
 }
 
+function registerUswdsCardGroupShortcode(liquidEngine, markdownLibrary) {
+  if (!liquidEngine || typeof liquidEngine.registerTag !== "function") {
+    return;
+  }
+
+  liquidEngine.registerTag("uswds_card_group", {
+    parse(tagToken, remainTokens) {
+      this.rawTokens = [];
+
+      const stream = liquidEngine.parser
+        .parseStream(remainTokens)
+        .on("template", (template) => this.rawTokens.push(template.token))
+        .on("tag:enduswds_card_group", () => stream.stop())
+        .on("end", () => {
+          throw new Error(`tag ${tagToken.raw} not closed`);
+        });
+
+      stream.start();
+    },
+    *render() {
+      const body = this.rawTokens.map(getRawTokenText).join("");
+      const data = normalizeCardGroupData(parseCardGroupYaml(body));
+
+      return renderUswdsCardGroup(data, markdownLibrary);
+    },
+  });
+}
+
 async function imageWithClassShortcode(src, cls, alt, outputDir) {
   const ext = path.extname(src);
   const fileType = ext.replace(".", "");
@@ -106,6 +132,7 @@ async function imageWithCaptionShortcode(src, cls, alt, caption, outputDir) {
 
 export function registerShortcodes(eleventyConfig, options, context = {}) {
   registerUswdsAccordionShortcode(context.liquidEngine, context.markdownLibrary);
+  registerUswdsCardGroupShortcode(context.liquidEngine, context.markdownLibrary);
 
   eleventyConfig.addLiquidShortcode("uswds_icon", function (name, classes = "") {
     return `<svg class="usa-icon ${escapeAttribute(

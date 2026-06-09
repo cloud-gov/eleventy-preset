@@ -194,10 +194,10 @@ Create `admin/index.html` if the site will use Decap CMS:
 Keep `admin/config.yml`, collections, media folders, editorial workflow
 settings, and custom CMS registrations local to the site.
 
-The preset admin entry automatically registers the shared USWDS Accordion
-editor component before `CMS.init()`. Sites using
+The preset admin entry automatically registers the shared USWDS Accordion and
+USWDS Card Group editor components before `CMS.init()`. Sites using
 `@studio/eleventy-preset/admin` do not need custom registration code or
-`admin/config.yml` changes for this component.
+`admin/config.yml` changes for these components.
 
 ### 11. Add Sass
 
@@ -353,3 +353,66 @@ items:
 
 Item content is rendered as Markdown only. Embedded Liquid tags, Liquid output,
 and shortcodes inside item content are preserved as text and are not executed.
+
+## USWDS Card Group Editor Component
+
+Sites using `@studio/eleventy-preset/admin` get a Decap CMS Markdown editor
+component labeled `USWDS Card Group` automatically:
+
+```js
+import CMS from "@studio/eleventy-preset/admin";
+
+CMS.init();
+```
+
+Rebuild the site admin bundle after updating the preset so the preset admin
+entry includes the component registration. No site-specific registration code
+or `admin/config.yml` change is required.
+
+Supported fields:
+
+- `cards`: list of cards
+- card `heading`: optional string
+- card `content`: optional Markdown
+- card `image.src`: optional image URL or path
+- card `image.alt`: optional alt text
+- card `button.label`: optional primary button label
+- card `button.href`: optional primary button URL or path
+- card `link.label`: optional secondary link label
+- card `link.href`: optional secondary link URL or path
+
+The editor saves a re-editable Liquid paired shortcode block with readable YAML
+instead of generated HTML:
+
+```liquid
+{% uswds_card_group %}
+cards:
+  - heading: "Card heading"
+    content: |-
+      Markdown body.
+    image:
+      src: "/uploads/example.jpg"
+      alt: "Descriptive alt text"
+    button:
+      label: "Primary action"
+      href: "/example/"
+    link:
+      label: "Secondary link"
+      href: "/example/details/"
+{% enduswds_card_group %}
+```
+
+New cards start with empty optional fields. Empty fields are omitted from the
+saved YAML; an entirely empty card is saved as `{}` and does not add placeholder
+heading, body, image, button, or link text.
+
+Card body content is rendered as Markdown only. Embedded Liquid tags, Liquid
+output, shortcodes, and raw HTML inside card content are preserved as text and
+are not executed.
+
+During Eleventy rendering, missing optional fields omit their USWDS wrappers:
+headers render only when a heading exists, media renders only when an image
+source exists, body renders only when content exists, and footer renders only
+when a button or secondary link exists. Card class controls are not exposed to
+editors; every rendered card uses
+`class="usa-card tablet:grid-col-6 desktop:grid-col-4"`.
