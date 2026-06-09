@@ -39,7 +39,7 @@ npm init -y
 Install the preset from the tagged GitHub release:
 
 ```sh
-npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.1.0
+npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.3.0
 npm install --save-dev @11ty/eleventy
 ```
 
@@ -194,6 +194,11 @@ Create `admin/index.html` if the site will use Decap CMS:
 Keep `admin/config.yml`, collections, media folders, editorial workflow
 settings, and custom CMS registrations local to the site.
 
+The preset admin entry automatically registers the shared USWDS Accordion and
+USWDS Card Group editor components before `CMS.init()`. Sites using
+`@studio/eleventy-preset/admin` do not need custom registration code or
+`admin/config.yml` changes for these components.
+
 ### 11. Add Sass
 
 Create `styles/styles.scss`:
@@ -309,3 +314,105 @@ The preset also exposes browser entry modules for USWDS and Decap CMS JavaScript
 - `@studio/eleventy-preset/uswds`
 - `@studio/eleventy-preset/uswds-init`
 - `@studio/eleventy-preset/admin`
+
+## USWDS Accordion Editor Component
+
+Sites on `@studio/eleventy-preset` v0.3.0 or later get a Decap CMS Markdown
+editor component labeled `USWDS Accordion` automatically through:
+
+```js
+import CMS from "@studio/eleventy-preset/admin";
+
+CMS.init();
+```
+
+After updating to v0.3.0, rebuild the site admin bundle so the preset admin
+entry includes the component registration.
+
+Supported fields:
+
+- `bordered`: boolean, default `false`
+- `allow_multiple`: boolean, default `false`
+- `items`: list of accordion items
+- item `title`: string
+- item `content`: Markdown
+- item `open`: boolean, default `false`
+
+The editor saves a re-editable Liquid paired shortcode block with YAML instead
+of generated HTML:
+
+```liquid
+{% uswds_accordion bordered=false allow_multiple=false %}
+items:
+  - title: "First item"
+    open: false
+    content: |-
+      Markdown body.
+{% enduswds_accordion %}
+```
+
+Item content is rendered as Markdown only. Embedded Liquid tags, Liquid output,
+and shortcodes inside item content are preserved as text and are not executed.
+
+## USWDS Card Group Editor Component
+
+Sites using `@studio/eleventy-preset/admin` get a Decap CMS Markdown editor
+component labeled `USWDS Card Group` automatically:
+
+```js
+import CMS from "@studio/eleventy-preset/admin";
+
+CMS.init();
+```
+
+Rebuild the site admin bundle after updating the preset so the preset admin
+entry includes the component registration. No site-specific registration code
+or `admin/config.yml` change is required.
+
+Supported fields:
+
+- `cards`: list of cards
+- card `heading`: optional string
+- card `content`: optional Markdown
+- card `image.src`: optional image URL or path
+- card `image.alt`: optional alt text
+- card `button.label`: optional primary button label
+- card `button.href`: optional primary button URL or path
+- card `link.label`: optional secondary link label
+- card `link.href`: optional secondary link URL or path
+
+The editor saves a re-editable Liquid paired shortcode block with readable YAML
+instead of generated HTML:
+
+```liquid
+{% uswds_card_group %}
+cards:
+  - heading: "Card heading"
+    content: |-
+      Markdown body.
+    image:
+      src: "/uploads/example.jpg"
+      alt: "Descriptive alt text"
+    button:
+      label: "Primary action"
+      href: "/example/"
+    link:
+      label: "Secondary link"
+      href: "/example/details/"
+{% enduswds_card_group %}
+```
+
+New cards start with empty optional fields. Empty fields are omitted from the
+saved YAML; an entirely empty card is saved as `{}` and does not add placeholder
+heading, body, image, button, or link text.
+
+Card body content is rendered as Markdown only. Embedded Liquid tags, Liquid
+output, shortcodes, and raw HTML inside card content are preserved as text and
+are not executed.
+
+During Eleventy rendering, missing optional fields omit their USWDS wrappers:
+headers render only when a heading exists, media renders only when an image
+source exists, body renders only when content exists, and footer renders only
+when a button or secondary link exists. Card class controls are not exposed to
+editors; every rendered card uses
+`class="usa-card tablet:grid-col-6 desktop:grid-col-4"`.

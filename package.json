@@ -1,8 +1,11 @@
 {
   "name": "@studio/eleventy-preset",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared Eleventy preset for Studio-managed USWDS 11ty sites",
   "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
@@ -32,7 +35,7 @@
     "@uswds/uswds": "^3.13.0",
     "autoprefixer": "^10.4.24",
     "chokidar": "^5.0.0",
-    "decap-cms": "^3.12.2",
+    "decap-cms": "^3.14.0",
     "eleventy-plugin-svg-sprite": "^2.4.6",
     "esbuild": "0.27.3",
     "js-yaml": "^4.1.1",
