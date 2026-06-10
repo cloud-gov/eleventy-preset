@@ -63,6 +63,8 @@ Add scripts like these to the site's `package.json`:
 
 `npm run dev` is the local development command. The deployed Pages build should
 run `npm run pages`, which runs the same preset-owned production build.
+Both `build` and `dev` clear Eleventy's output directory before the initial
+generation, removing stale files from the default `_site` directory.
 
 ### 4. Add Eleventy Configuration
 

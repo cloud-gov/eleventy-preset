@@ -24,6 +24,28 @@ function hasPathPrefixArg(args) {
   return args.some((arg) => arg === "--pathprefix" || arg.startsWith("--pathprefix="));
 }
 
+function readEleventyOutputDir(args) {
+  const outputArg = args.find((arg) => arg.startsWith("--output="));
+  if (outputArg) {
+    return outputArg.slice("--output=".length);
+  }
+
+  const outputValue = readFlagValue(args, "--output") || readFlagValue(args, "-o");
+  return outputValue || "_site";
+}
+
+async function cleanOutputDir(args) {
+  const outputDir = readEleventyOutputDir(args);
+  const absoluteOutputDir = path.resolve(process.cwd(), outputDir);
+  const projectRoot = path.resolve(process.cwd());
+
+  if (absoluteOutputDir === projectRoot || absoluteOutputDir === path.parse(absoluteOutputDir).root) {
+    throw new Error(`Refusing to clean unsafe Eleventy output directory: ${outputDir}`);
+  }
+
+  await fs.promises.rm(absoluteOutputDir, { recursive: true, force: true });
+}
+
 function withDefaultPathPrefix(args, env) {
   if (!env.BASEURL || hasPathPrefixArg(args)) {
     return args;
@@ -121,6 +143,7 @@ async function runBuild(args) {
   };
   const options = await loadConfig(readFlagValue(studioArgs, "--config"));
 
+  await cleanOutputDir(eleventyArgs);
   await buildAll({
     ...options,
     production: env.ELEVENTY_ENV === "production"
@@ -140,6 +163,7 @@ async function runDev(args) {
     env
   );
 
+  await cleanOutputDir(serveArgs);
   await buildAll({
     ...options,
     production: false
