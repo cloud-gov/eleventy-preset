@@ -1,5 +1,6 @@
 import { registerUswdsAccordionEditorComponent } from "./admin/uswds-accordion-editor-component.js";
 import { registerUswdsCardGroupEditorComponent } from "./admin/uswds-card-group-editor-component.js";
+import { removeDefaultEditorComponents } from "./admin/editor-components.js";
 
 if (typeof window !== "undefined") {
   window.CMS_MANUAL_INIT = true;
@@ -8,6 +9,7 @@ if (typeof window !== "undefined") {
 const cmsReadyPromise = import("decap-cms").then((module) => {
   const CMS = module.default ?? module;
 
+  removeDefaultEditorComponents(CMS);
   registerUswdsAccordionEditorComponent(CMS);
   registerUswdsCardGroupEditorComponent(CMS);
 

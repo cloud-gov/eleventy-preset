@@ -197,9 +197,10 @@ Keep `admin/config.yml`, collections, media folders, editorial workflow
 settings, and custom CMS registrations local to the site.
 
 The preset admin entry automatically registers the shared USWDS Accordion and
-USWDS Card Group editor components before `CMS.init()`. Sites using
-`@studio/eleventy-preset/admin` do not need custom registration code or
-`admin/config.yml` changes for these components.
+USWDS Card Group editor components before `CMS.init()`. It also removes Decap
+CMS's default Code Block editor component from Markdown editor component menus.
+Sites using `@studio/eleventy-preset/admin` do not need custom registration
+code or `admin/config.yml` changes for these components.
 
 ### 11. Add Sass
 
