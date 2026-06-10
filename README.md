@@ -435,13 +435,13 @@ the release workflow is run.
 ```sh
 git switch main
 git pull
-git switch -c release/v0.3.1
+git switch -c release/v0.3.0
 ```
 
 ### 2. Bump the package version
 
 ```sh
-npm version 0.3.1 --no-git-tag-version
+npm version 0.3.0 --no-git-tag-version
 ```
 
 This updates both:
@@ -466,8 +466,8 @@ if they reference the previous version.
 
 ```sh
 git add package.json package-lock.json README.md
-git commit -m "Prepare release v0.3.1"
-git push -u origin release/v0.3.1
+git commit -m "Prepare release v0.3.0"
+git push -u origin release/v0.3.0
 ```
 
 Open a PR into `main`.
@@ -484,7 +484,7 @@ In GitHub:
 2. Select **Release**.
 3. Click **Run workflow**.
 4. Select the `main` branch.
-5. Enter the version without the `v` prefix, for example `0.3.1`.
+5. Enter the version without the `v` prefix, for example `0.3.0`.
 6. Choose whether this is a prerelease.
 7. Run the workflow.
 
