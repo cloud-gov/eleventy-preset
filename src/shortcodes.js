@@ -34,12 +34,8 @@ function getRawTokenText(token) {
   return token.input.slice(token.begin, token.end);
 }
 
-function registerUswdsAccordionShortcode(liquidEngine, markdownLibrary) {
-  if (!liquidEngine || typeof liquidEngine.registerTag !== "function") {
-    return;
-  }
-
-  liquidEngine.registerTag("uswds_accordion", {
+function createUswdsAccordionTag(markdownLibrary) {
+  return (liquidEngine) => ({
     parse(tagToken, remainTokens) {
       this.attributeText = tagToken.args;
       this.accordionIndex = (tagToken.begin || 0) + 1;
@@ -69,12 +65,31 @@ function registerUswdsAccordionShortcode(liquidEngine, markdownLibrary) {
   });
 }
 
-function registerUswdsCardGroupShortcode(liquidEngine, markdownLibrary) {
-  if (!liquidEngine || typeof liquidEngine.registerTag !== "function") {
-    return;
+function registerRawLiquidTag(eleventyConfig, liquidEngine, tagName, createTag) {
+  if (eleventyConfig && typeof eleventyConfig.addLiquidTag === "function") {
+    eleventyConfig.addLiquidTag(tagName, createTag);
   }
 
-  liquidEngine.registerTag("uswds_card_group", {
+  if (liquidEngine && typeof liquidEngine.registerTag === "function") {
+    liquidEngine.registerTag(tagName, createTag(liquidEngine));
+  }
+}
+
+function registerUswdsAccordionShortcode(
+  eleventyConfig,
+  liquidEngine,
+  markdownLibrary,
+) {
+  registerRawLiquidTag(
+    eleventyConfig,
+    liquidEngine,
+    "uswds_accordion",
+    createUswdsAccordionTag(markdownLibrary),
+  );
+}
+
+function createUswdsCardGroupTag(markdownLibrary) {
+  return (liquidEngine) => ({
     parse(tagToken, remainTokens) {
       this.rawTokens = [];
 
@@ -95,6 +110,19 @@ function registerUswdsCardGroupShortcode(liquidEngine, markdownLibrary) {
       return renderUswdsCardGroup(data, markdownLibrary);
     },
   });
+}
+
+function registerUswdsCardGroupShortcode(
+  eleventyConfig,
+  liquidEngine,
+  markdownLibrary,
+) {
+  registerRawLiquidTag(
+    eleventyConfig,
+    liquidEngine,
+    "uswds_card_group",
+    createUswdsCardGroupTag(markdownLibrary),
+  );
 }
 
 async function imageWithClassShortcode(src, cls, alt, outputDir) {
@@ -131,8 +159,16 @@ async function imageWithCaptionShortcode(src, cls, alt, caption, outputDir) {
 }
 
 export function registerShortcodes(eleventyConfig, options, context = {}) {
-  registerUswdsAccordionShortcode(context.liquidEngine, context.markdownLibrary);
-  registerUswdsCardGroupShortcode(context.liquidEngine, context.markdownLibrary);
+  registerUswdsAccordionShortcode(
+    eleventyConfig,
+    context.liquidEngine,
+    context.markdownLibrary,
+  );
+  registerUswdsCardGroupShortcode(
+    eleventyConfig,
+    context.liquidEngine,
+    context.markdownLibrary,
+  );
 
   eleventyConfig.addLiquidShortcode("uswds_icon", function (name, classes = "") {
     return `<svg class="usa-icon ${escapeAttribute(
