@@ -1,6 +1,6 @@
 {
   "name": "@studio/eleventy-preset",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Shared Eleventy preset for Studio-managed USWDS 11ty sites",
   "type": "module",
   "scripts": {
