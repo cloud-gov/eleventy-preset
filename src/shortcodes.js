@@ -66,12 +66,22 @@ function createUswdsAccordionTag(markdownLibrary) {
 }
 
 function registerRawLiquidTag(eleventyConfig, liquidEngine, tagName, createTag) {
+  let registered = false;
+
   if (eleventyConfig && typeof eleventyConfig.addLiquidTag === "function") {
     eleventyConfig.addLiquidTag(tagName, createTag);
+    registered = true;
   }
 
   if (liquidEngine && typeof liquidEngine.registerTag === "function") {
     liquidEngine.registerTag(tagName, createTag(liquidEngine));
+    registered = true;
+  }
+
+  if (!registered) {
+    throw new Error(
+      `Unable to register Liquid tag "${tagName}": neither eleventyConfig.addLiquidTag nor liquidEngine.registerTag is available.`,
+    );
   }
 }
 
@@ -188,15 +198,15 @@ export function registerShortcodes(eleventyConfig, options, context = {}) {
   if (options.features.imageShortcodes) {
     const outputDir = options.imageShortcodes.outputDir;
 
-    eleventyConfig.addLiquidShortcode("image", (src, alt) =>
+    eleventyConfig.addLiquidShortcode("image", async (src, alt) =>
       imageWithClassShortcode(src, "", alt, outputDir)
     );
-    eleventyConfig.addLiquidShortcode("image_with_class", (src, cls, alt) =>
+    eleventyConfig.addLiquidShortcode("image_with_class", async (src, cls, alt) =>
       imageWithClassShortcode(src, cls, alt, outputDir)
     );
 
     if (options.imageShortcodes.includeCaption) {
-      eleventyConfig.addLiquidShortcode("image_with_caption", (src, cls, alt, caption) =>
+      eleventyConfig.addLiquidShortcode("image_with_caption", async (src, cls, alt, caption) =>
         imageWithCaptionShortcode(src, cls, alt, caption, outputDir)
       );
     }
