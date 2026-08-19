@@ -15,6 +15,8 @@ collections local.
 - 🧩 Shared shortcodes for USWDS icons, YouTube embeds, and optional responsive
   image helpers.
 - 📚 Built-in YAML data support and a reusable `postsByYear` collection helper.
+- ↪️ Built-in, Jekyll-compatible `redirect_from` and `redirect_to` support for
+  migrated content.
 - 🚀 Single `studio-eleventy` CLI for build and dev server.
 
 ## Creating a New Site
@@ -258,6 +260,7 @@ module.exports = async function (config) {
       imageShortcodes: false, // true enables image, image_with_class, and image_with_caption.
       imageTransform: true, // false skips @11ty/eleventy-img transforms.
       navigation: true, // false skips @11ty/eleventy-navigation.
+      redirects: true, // false disables Jekyll-compatible redirect_from and redirect_to handling.
       rss: false, // true enables @11ty/eleventy-plugin-rss.
     },
 
@@ -305,6 +308,10 @@ module.exports = async function (config) {
       outputDir: "./_site/img/", // Change where shortcode-generated images are written.
       includeCaption: false, // true also enables image_with_caption.
     },
+
+    redirects: {
+      json: true, // false omits the generated redirects.json map.
+    },
   });
 };
 ```
@@ -316,6 +323,111 @@ The preset also exposes browser entry modules for USWDS and Decap CMS JavaScript
 - `@studio/eleventy-preset/uswds`
 - `@studio/eleventy-preset/uswds-init`
 - `@studio/eleventy-preset/admin`
+
+## Jekyll-compatible redirects
+
+Sites migrated from Jekyll can keep their existing `redirect_from` and
+`redirect_to` YAML frontmatter unchanged. Redirect handling is enabled by
+default, so a consuming site's existing preset configuration needs no change:
+
+```js
+module.exports = async function (config) {
+  const { default: studioPreset } = await import("@studio/eleventy-preset");
+
+  await studioPreset(config);
+};
+```
+
+No Ruby plugin, `jekyll-redirect-from` gem, or additional Eleventy redirect
+package is required in the consuming site. A site that does not want redirect
+frontmatter processed can disable the feature explicitly:
+
+```js
+await studioPreset(config, {
+  features: { redirects: false },
+});
+```
+
+Use a scalar or array for aliases that should point to a page's final Eleventy
+URL:
+
+```yaml
+---
+title: Current page
+permalink: /current-page/
+redirect_from: /old-page/
+---
+```
+
+```yaml
+---
+title: Current page
+permalink: /current-page/
+redirect_from:
+  - /old-page/
+  - /another-old-page
+---
+```
+
+Use `redirect_to` to replace a page's normal rendered response with a redirect
+document at that page's existing URL. Internal and absolute HTTP or HTTPS
+destinations are supported:
+
+```yaml
+---
+permalink: /former-location/
+redirect_to: /new-location/
+---
+```
+
+```yaml
+---
+permalink: /external-resource/
+redirect_to: https://example.gov/new-location/
+---
+```
+
+A page may use both fields. Its `redirect_from` aliases point to the page's own
+Eleventy URL, and that page then redirects to its `redirect_to` destination,
+matching the Jekyll plugin's behavior. For Jekyll array compatibility,
+`redirect_to` uses the first non-null entry if an array is supplied.
+
+Alias trailing slashes intentionally control the generated output path:
+
+- `/old-page/` writes `old-page/index.html`.
+- `/old-page` writes the extensionless file `old-page`.
+- `/old-page.html` writes `old-page.html`.
+
+The site's `pathPrefix` is applied exactly once to internal destinations. It is
+not applied to absolute HTTP or HTTPS destinations, and it does not change
+where alias files are written in the output directory.
+
+When redirects are enabled, the preset also generates `redirects.json` with
+the resolved source-to-destination map, including `redirect_from` aliases and
+`redirect_to` pages. Disable it when the deployment does not need the map:
+
+```js
+await studioPreset(config, {
+  features: { redirects: true },
+  redirects: { json: false },
+});
+```
+
+If the consuming site already owns a source or generated `redirects.json`, the
+preset preserves the site's output instead of replacing it.
+
+Redirect sources are validated as local paths. The build fails with an
+actionable error for traversal, query strings, fragments, unsafe destination
+schemes, self-redirects, obvious loops, conflicting source mappings, or an
+alias that would collide with a real Eleventy output. Identical mappings are
+deduplicated. Templates without an output URL and outputs that are not HTML or
+extensionless HTML are ignored.
+
+The preset supplies a complete redirect document with a canonical link,
+`noindex`, meta-refresh, safely serialized JavaScript, and an ordinary fallback
+link. Unlike `jekyll-redirect-from`, this version does not look for or render a
+site-defined `redirect` layout; the preset-owned document is used consistently
+so escaping and redirect behavior remain safe.
 
 ## USWDS Accordion Editor Component
 

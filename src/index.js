@@ -13,6 +13,7 @@ import {
   registerWatchTargets,
 } from "./passthrough.js";
 import { registerOfficialPlugins, registerSvgSprites } from "./plugins.js";
+import { registerRedirects } from "./redirects.js";
 import { registerShortcodes } from "./shortcodes.js";
 
 export {
@@ -42,6 +43,10 @@ export default async function studioEleventyPreset(
 
   if (options.features.svgSprites) {
     registerSvgSprites(eleventyConfig, options);
+  }
+
+  if (options.features.redirects) {
+    registerRedirects(eleventyConfig, options);
   }
 
   registerDataExtensions(eleventyConfig, options);
