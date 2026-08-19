@@ -196,10 +196,10 @@ Create `admin/index.html` if the site will use Decap CMS:
 Keep `admin/config.yml`, collections, media folders, editorial workflow
 settings, and custom CMS registrations local to the site.
 
-The preset admin entry automatically registers the shared USWDS Accordion and
-USWDS Card Group editor components before `CMS.init()`. Sites using
-`@studio/eleventy-preset/admin` do not need custom registration code or
-`admin/config.yml` changes for these components.
+The preset admin entry automatically registers the shared USWDS Accordion,
+USWDS Card Group, and USWDS Summary Box editor components before `CMS.init()`.
+Sites using `@studio/eleventy-preset/admin` do not need custom registration
+code or `admin/config.yml` changes for these components.
 
 ### 11. Add Sass
 
@@ -418,6 +418,46 @@ source exists, body renders only when content exists, and footer renders only
 when a button or secondary link exists. Card class controls are not exposed to
 editors; every rendered card uses
 `class="usa-card tablet:grid-col-6 desktop:grid-col-4"`.
+
+## USWDS Summary Box Editor Component
+
+Sites using a preset release that includes this component get a Decap CMS
+Markdown editor component labeled `USWDS Summary Box` automatically through:
+
+```js
+import CMS from "@studio/eleventy-preset/admin";
+
+CMS.init();
+```
+
+Rebuild the site admin bundle after updating the preset. No site-specific
+registration code or `admin/config.yml` change is required.
+
+Supported fields:
+
+- `heading`: descriptive string, default `Key information`
+- `heading_level`: semantic heading level from `2` through `6`, default `2`
+- `content`: Markdown
+
+The editor saves a re-editable Liquid paired shortcode block with readable YAML:
+
+```liquid
+{% uswds_summary_box heading_level=2 %}
+heading: "Key information"
+content: |-
+  A concise summary with a [link to more information](/details/).
+{% enduswds_summary_box %}
+```
+
+The rendered summary box is a labeled region whose accessible name comes from
+the selected semantic heading. Links rendered from Markdown receive the USWDS
+`usa-summary-box__link` class, and multiple boxes on one page receive distinct,
+stable heading IDs.
+
+Summary content is rendered as Markdown with raw HTML disabled. Embedded Liquid
+tags, Liquid output, shortcodes, and raw HTML are preserved as text and are not
+executed. Styling is supplied by the existing USWDS summary box component; the
+editor does not expose custom style controls.
 
 ## Releasing
 

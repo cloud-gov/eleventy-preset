@@ -1,5 +1,6 @@
 import { registerUswdsAccordionEditorComponent } from "./admin/uswds-accordion-editor-component.js";
 import { registerUswdsCardGroupEditorComponent } from "./admin/uswds-card-group-editor-component.js";
+import { registerUswdsSummaryBoxEditorComponent } from "./admin/uswds-summary-box-editor-component.js";
 
 if (typeof window !== "undefined") {
   window.CMS_MANUAL_INIT = true;
@@ -10,6 +11,7 @@ const cmsReadyPromise = import("decap-cms").then((module) => {
 
   registerUswdsAccordionEditorComponent(CMS);
   registerUswdsCardGroupEditorComponent(CMS);
+  registerUswdsSummaryBoxEditorComponent(CMS);
 
   return CMS;
 });
