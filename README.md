@@ -383,6 +383,8 @@ or `admin/config.yml` change is required.
 
 Supported fields:
 
+- `classes`: optional CSS classes applied to every card in addition to
+  `usa-card`; defaults to `tablet:grid-col-6 desktop:grid-col-4`
 - `cards`: list of cards
 - card `heading`: optional string
 - card `content`: optional Markdown
@@ -401,6 +403,7 @@ YAML, with the required blank lines immediately inside both markers:
 <!-- prettier-ignore-start -->
 
 {% uswds_card_group %}
+classes: "tablet:grid-col-6 desktop:grid-col-6"
 cards:
   - heading: "Card heading"
     content: |-
@@ -434,9 +437,11 @@ are not executed.
 During Eleventy rendering, missing optional fields omit their USWDS wrappers:
 headers render only when a heading exists, media renders only when an image
 source exists, body renders only when content exists, and footer renders only
-when a button or secondary link exists. Card class controls are not exposed to
-editors; every rendered card uses
-`class="usa-card tablet:grid-col-6 desktop:grid-col-4"`.
+when a button or secondary link exists. Every rendered card includes
+`usa-card`. When `classes` is empty or omitted, cards use the default responsive
+width classes `tablet:grid-col-6 desktop:grid-col-4`; a non-empty value replaces
+those defaults. Including `usa-card` in the input is allowed but does not
+duplicate it in the rendered class attribute.
 
 ## USWDS Summary Box Editor Component
 

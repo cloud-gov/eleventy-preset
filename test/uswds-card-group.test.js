@@ -40,6 +40,14 @@ test("Decap editor component registers with re-editable helpers and empty defaul
   assert.equal(component.id, "uswds-card-group");
   assert.equal(component.label, "USWDS Card Group");
 
+  const classesField = component.fields.find(
+    (field) => field.name === "classes",
+  );
+  assert.equal(
+    classesField.default,
+    "tablet:grid-col-6 desktop:grid-col-4",
+  );
+
   const cardsField = component.fields.find((field) => field.name === "cards");
   assert.deepEqual(cardsField.default, [{}]);
 
@@ -72,13 +80,18 @@ cards:
 <!-- prettier-ignore-end -->`,
   );
   assert.deepEqual(
-    component.fromBlock(USWDS_CARD_GROUP_PATTERN.exec(block)).cards[0],
+    component.fromBlock(USWDS_CARD_GROUP_PATTERN.exec(block)),
     {
-      heading: "Card heading",
-      content: "Markdown body.",
-      image: { src: "", alt: "" },
-      button: { label: "", href: "" },
-      link: { label: "", href: "" },
+      classes: "",
+      cards: [
+        {
+          heading: "Card heading",
+          content: "Markdown body.",
+          image: { src: "", alt: "" },
+          button: { label: "", href: "" },
+          link: { label: "", href: "" },
+        },
+      ],
     },
   );
 });
@@ -91,6 +104,7 @@ cards:
       Legacy Markdown.
 {% enduswds_card_group %}`;
   const expectedData = {
+    classes: "",
     cards: [
       {
         heading: "Legacy card",
@@ -173,6 +187,56 @@ test("shortcode renders USWDS card markup with markdown and escaped user values"
   );
 });
 
+test("custom card classes replace default widths and always include usa-card", () => {
+  const data = {
+    classes: " usa-card  tablet:grid-col-4 desktop:grid-col-6 ",
+    cards: [{ heading: "Custom widths" }],
+  };
+  const yaml = dumpCardGroupYaml(data);
+  const html = renderUswdsCardGroup(data, createMarkdownLibrary());
+
+  assert.match(
+    yaml,
+    /^classes: "usa-card tablet:grid-col-4 desktop:grid-col-6"\ncards:/,
+  );
+  assert.match(
+    html,
+    /<li class="usa-card tablet:grid-col-4 desktop:grid-col-6">/,
+  );
+  assert.doesNotMatch(html, /desktop:grid-col-4/);
+  const cardClassAttribute = /<li class="([^"]+)">/.exec(html)[1];
+  assert.equal(
+    cardClassAttribute.split(/\s+/).filter((value) => value === "usa-card")
+      .length,
+    1,
+  );
+
+  const baseClassOnlyHtml = renderUswdsCardGroup(
+    {
+      classes: "usa-card",
+      cards: [{ heading: "No width utilities" }],
+    },
+    createMarkdownLibrary(),
+  );
+  assert.match(baseClassOnlyHtml, /<li class="usa-card">/);
+  assert.doesNotMatch(baseClassOnlyHtml, /grid-col/);
+});
+
+test("empty custom card classes retain the default responsive widths", () => {
+  const html = renderUswdsCardGroup(
+    {
+      classes: "  ",
+      cards: [{ heading: "Default widths" }],
+    },
+    createMarkdownLibrary(),
+  );
+
+  assert.match(
+    html,
+    /<li class="usa-card tablet:grid-col-6 desktop:grid-col-4">/,
+  );
+});
+
 test("missing optional card fields omit wrappers cleanly", () => {
   const html = renderUswdsCardGroup(
     {
@@ -213,11 +277,13 @@ test("Liquid tag captures raw YAML so card body Liquid is not evaluated", async 
   const html =
     await liquidEngine.parseAndRender(`{% assign secret = "evaluated" %}
 {% uswds_card_group %}
+classes: "tablet:grid-col-12"
 cards:
   - content: |-
       **Bold** {{ secret }} {% assign nested = "nope" %}
 {% enduswds_card_group %}`);
 
+  assert.match(html, /<li class="usa-card tablet:grid-col-12">/);
   assert.match(html, /<strong>Bold<\/strong>/);
   assert.match(html, /\{\{ secret \}\}/);
   assert.match(html, /\{% assign nested = &quot;nope&quot; %\}/);

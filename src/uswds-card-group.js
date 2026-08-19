@@ -17,7 +17,25 @@ export const USWDS_CARD_GROUP_LABEL = "USWDS Card Group";
 export const USWDS_CARD_GROUP_PATTERN =
   createEditorComponentPattern("uswds_card_group");
 
-const CARD_CLASS = "usa-card tablet:grid-col-6 desktop:grid-col-4";
+const BASE_CARD_CLASS = "usa-card";
+const DEFAULT_CARD_CLASSES = "tablet:grid-col-6 desktop:grid-col-4";
+
+function normalizeCardClasses(value) {
+  return normalizeString(value)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .join(" ");
+}
+
+function getCardClass(value) {
+  const normalizedClasses = normalizeCardClasses(value);
+  const classes = (normalizedClasses || DEFAULT_CARD_CLASSES)
+    .split(/\s+/)
+    .filter((className) => className !== BASE_CARD_CLASS);
+
+  return [BASE_CARD_CLASS, ...classes].join(" ");
+}
 
 function normalizeAction(value = {}) {
   const action = normalizeObject(value);
@@ -38,9 +56,11 @@ function normalizeImage(value = {}) {
 }
 
 export function normalizeCardGroupData(data = {}) {
-  const cards = Array.isArray(data.cards) ? data.cards : [];
+  const normalizedData = normalizeObject(data);
+  const cards = Array.isArray(normalizedData.cards) ? normalizedData.cards : [];
 
   return {
+    classes: normalizeCardClasses(normalizedData.classes),
     cards: cards.map((card = {}) => {
       const normalizedCard = normalizeObject(card);
 
@@ -122,12 +142,16 @@ function pushObjectLines(lines, key, value, fields) {
 
 export function dumpCardGroupYaml(data = {}) {
   const normalized = normalizeCardGroupData(data);
+  const lines = [];
+
+  pushStringLine(lines, "classes", normalized.classes, "");
 
   if (normalized.cards.length === 0) {
-    return "cards: []\n";
+    lines.push("cards: []");
+    return `${lines.join("\n")}\n`;
   }
 
-  const lines = ["cards:"];
+  lines.push("cards:");
 
   for (const card of normalized.cards) {
     const cardLines = [];
@@ -237,7 +261,7 @@ ${renderMarkdownOnly(card.content, markdownLibrary).trim()}
         parts.push(footer);
       }
 
-      return `<li class="${CARD_CLASS}">
+      return `<li class="${escapeAttribute(getCardClass(normalized.classes))}">
 <div class="usa-card__container">
 ${parts.join("\n")}
 </div>

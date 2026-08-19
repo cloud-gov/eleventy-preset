@@ -32,6 +32,14 @@ const actionFields = [
 
 const fields = [
   {
+    label: "CSS classes",
+    name: "classes",
+    widget: "string",
+    required: false,
+    default: "tablet:grid-col-6 desktop:grid-col-4",
+    hint: "Applied to every card in addition to usa-card. When set, these replace the default responsive width classes.",
+  },
+  {
     label: "Cards",
     name: "cards",
     widget: "list",
