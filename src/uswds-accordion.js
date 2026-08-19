@@ -1,10 +1,15 @@
 import yaml from "js-yaml";
+import {
+  createEditorComponentPattern,
+  extractPairedShortcodeBlock,
+  wrapEditorComponentBlock,
+} from "./editor-component-block.js";
 import { escapeAttribute, escapeHtml, parseBoolean } from "./uswds-utils.js";
 
 export const USWDS_ACCORDION_COMPONENT_ID = "uswds-accordion";
 export const USWDS_ACCORDION_LABEL = "USWDS Accordion";
 export const USWDS_ACCORDION_PATTERN =
-  /\{%\s*uswds_accordion\b([^%}]*)%\}\s*\n?([\s\S]*?)\n?\{%\s*enduswds_accordion\s*%\}/;
+  createEditorComponentPattern("uswds_accordion");
 
 function slugify(value) {
   return String(value || "")
@@ -73,17 +78,18 @@ export function parseAccordionYaml(body = "") {
 }
 
 export function parseAccordionBlock(matchOrBlock) {
-  const match = Array.isArray(matchOrBlock)
-    ? matchOrBlock
-    : USWDS_ACCORDION_PATTERN.exec(String(matchOrBlock || ""));
+  const block = extractPairedShortcodeBlock(
+    matchOrBlock,
+    "uswds_accordion",
+  );
 
-  if (!match) {
+  if (!block) {
     return normalizeAccordionData();
   }
 
   return normalizeAccordionData({
-    ...parseAccordionAttributes(match[1]),
-    ...parseAccordionYaml(match[2]),
+    ...parseAccordionAttributes(block.attributes),
+    ...parseAccordionYaml(block.body),
   });
 }
 
@@ -121,7 +127,9 @@ export function buildAccordionBlock(data = {}) {
   const allowMultiple = normalized.allow_multiple ? "true" : "false";
   const body = dumpAccordionYaml(normalized).trimEnd();
 
-  return `{% uswds_accordion bordered=${bordered} allow_multiple=${allowMultiple} %}\n${body}\n{% enduswds_accordion %}`;
+  return wrapEditorComponentBlock(
+    `{% uswds_accordion bordered=${bordered} allow_multiple=${allowMultiple} %}\n${body}\n{% enduswds_accordion %}`,
+  );
 }
 
 export function renderUswdsAccordion(data = {}, markdownLibrary, options = {}) {
