@@ -67,8 +67,17 @@ cards:
       **Card body**
 {% enduswds_card_group %}`);
 
+  const summaryBoxHtml = await replacementLiquidEngine.parseAndRender(`
+{% uswds_summary_box heading_level=3 %}
+heading: Summary heading
+content: |-
+  **Summary body**
+{% enduswds_summary_box %}`);
+
   assert.match(accordionHtml, /usa-accordion--bordered/);
   assert.match(accordionHtml, /<strong>Accordion body<\/strong>/);
   assert.match(cardGroupHtml, /usa-card__heading/);
   assert.match(cardGroupHtml, /<strong>Card body<\/strong>/);
+  assert.match(summaryBoxHtml, /<h3 class="usa-summary-box__heading"/);
+  assert.match(summaryBoxHtml, /<strong>Summary body<\/strong>/);
 });

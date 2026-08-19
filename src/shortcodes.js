@@ -11,6 +11,12 @@ import {
   parseCardGroupYaml,
   renderUswdsCardGroup,
 } from "./uswds-card-group.js";
+import {
+  normalizeSummaryBoxData,
+  parseSummaryBoxAttributes,
+  parseSummaryBoxYaml,
+  renderUswdsSummaryBox,
+} from "./uswds-summary-box.js";
 import { escapeAttribute } from "./uswds-utils.js";
 
 function getYouTubeEmbedUrl(videoUrl) {
@@ -125,6 +131,50 @@ function registerUswdsCardGroupShortcode(
   );
 }
 
+function createUswdsSummaryBoxTag(markdownLibrary) {
+  return (liquidEngine) => ({
+    parse(tagToken, remainTokens) {
+      this.attributeText = tagToken.args;
+      this.summaryBoxIndex = (tagToken.begin || 0) + 1;
+      this.rawTokens = [];
+
+      const stream = liquidEngine.parser
+        .parseStream(remainTokens)
+        .on("template", (template) => this.rawTokens.push(template.token))
+        .on("tag:enduswds_summary_box", () => stream.stop())
+        .on("end", () => {
+          throw new Error(`tag ${tagToken.raw} not closed`);
+        });
+
+      stream.start();
+    },
+    *render() {
+      const body = this.rawTokens.map(getRawTokenText).join("");
+      const data = normalizeSummaryBoxData({
+        ...parseSummaryBoxYaml(body),
+        ...parseSummaryBoxAttributes(this.attributeText),
+      });
+
+      return renderUswdsSummaryBox(data, markdownLibrary, {
+        summaryBoxIndex: this.summaryBoxIndex,
+      });
+    },
+  });
+}
+
+function registerUswdsSummaryBoxShortcode(
+  eleventyConfig,
+  liquidEngine,
+  markdownLibrary,
+) {
+  registerRawLiquidTag(
+    eleventyConfig,
+    liquidEngine,
+    "uswds_summary_box",
+    createUswdsSummaryBoxTag(markdownLibrary),
+  );
+}
+
 async function imageWithClassShortcode(src, cls, alt, outputDir) {
   const ext = path.extname(src);
   const fileType = ext.replace(".", "");
@@ -165,6 +215,11 @@ export function registerShortcodes(eleventyConfig, options, context = {}) {
     context.markdownLibrary,
   );
   registerUswdsCardGroupShortcode(
+    eleventyConfig,
+    context.liquidEngine,
+    context.markdownLibrary,
+  );
+  registerUswdsSummaryBoxShortcode(
     eleventyConfig,
     context.liquidEngine,
     context.markdownLibrary,
