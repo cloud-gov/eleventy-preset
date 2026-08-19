@@ -11,6 +11,7 @@ export const defaultPresetOptions = {
     navigation: true,
     passthroughCopy: true,
     rss: false,
+    redirects: true,
     shortcodes: true,
     svgSprites: true,
     watchTargets: true,
@@ -55,6 +56,9 @@ export const defaultPresetOptions = {
   imageShortcodes: {
     outputDir: "./_site/img/",
     includeCaption: false,
+  },
+  redirects: {
+    json: true,
   },
 };
 
@@ -114,6 +118,10 @@ export function resolvePresetOptions(
     imageShortcodes: {
       ...defaultPresetOptions.imageShortcodes,
       ...(userOptions.imageShortcodes || {}),
+    },
+    redirects: {
+      ...defaultPresetOptions.redirects,
+      ...(userOptions.redirects || {}),
     },
     passthroughCopy:
       userOptions.passthroughCopy ?? defaultPresetOptions.passthroughCopy,
