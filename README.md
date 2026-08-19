@@ -363,8 +363,38 @@ Legacy blocks without the ignore comments remain detectable and editable. When
 Decap re-saves one, the editor normalizes it to the canonical range above with
 exactly one balanced marker pair.
 
-Item content is rendered as Markdown only. Embedded Liquid tags, Liquid output,
-and shortcodes inside item content are preserved as text and are not executed.
+Accordion item content supports Liquid output and site or preset shortcodes:
+
+```liquid
+{% uswds_accordion bordered=false allow_multiple=false %}
+items:
+  - title: "Page details"
+    open: false
+    content: |-
+      **Current page:** {{ title }}
+
+      {% site_notice "Built by Eleventy" %}
+{% enduswds_accordion %}
+```
+
+The rendering order is: parse the raw YAML body, render each parsed item's
+`content` with the containing page's Liquid engine and context, then pass that
+result through the configured Markdown library. Titles, YAML keys, accordion
+attributes, and other fields are never evaluated as Liquid. Liquid output
+returned by a shortcode is not recursively evaluated.
+
+Accordion item content executes Liquid and shortcodes at build time, so use it
+only with trusted content. To preserve Liquid syntax literally, wrap it in a
+Liquid `raw` block:
+
+```liquid
+content: |-
+  {% raw %}{{ title }} {% site_notice %}{% endraw %}
+```
+
+The Decap CMS preview remains browser-only and does not execute server-side
+Liquid or shortcodes. It shows their source literally; the configured behavior
+is applied by Eleventy during the site build.
 
 ## USWDS Card Group Editor Component
 

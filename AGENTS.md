@@ -188,6 +188,37 @@ items:
 {% endcomponent_name %}
 ```
 
+### USWDS Accordion Liquid Rendering Contract
+
+The `uswds_accordion` paired shortcode renders Liquid in item content by
+default. Preserve these guarantees:
+
+- Continue to parse legacy blocks and preserve the canonical Prettier ignore
+  wrappers and stable shortcode attributes.
+- Always capture and parse the raw YAML body before any Liquid evaluation.
+  Never render the complete YAML body as Liquid.
+- Render only each parsed item's `content` with the active Eleventy Liquid
+  engine and containing page context, then pass the result to the configured
+  Markdown library.
+- Never evaluate item titles, YAML keys, accordion attributes, or other fields.
+  Do not recursively evaluate Liquid source emitted by a shortcode.
+- Preserve support for site-defined universal and Liquid shortcodes, preset
+  shortcodes, page variables, and asynchronous shortcodes supported by
+  Eleventy and LiquidJS. Keep item-local Liquid assignments isolated so one
+  item's content cannot affect another item.
+- Keep `renderUswdsAccordion` synchronous and backward compatible. Perform
+  context-dependent Liquid work in the server-side shortcode rendering path.
+- Keep the Decap preview deterministic and browser-only. It must never attempt
+  to execute server-side Liquid or shortcodes and may display their source
+  literally.
+- Liquid `raw` blocks inside item content are the supported way to preserve
+  literal Liquid syntax.
+
+Accordion rendering changes must include coverage for block round trips,
+legacy blocks, default Liquid rendering, Decap preview safety, replacement
+Liquid-engine tag registration, and a real Eleventy shortcode
+registration/render path.
+
 ## USWDS and Accessibility Requirements
 
 Strictly follow USWDS patterns for generated components.

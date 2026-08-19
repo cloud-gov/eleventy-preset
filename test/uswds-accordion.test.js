@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import Eleventy from "@11ty/eleventy";
 import { Liquid } from "liquidjs";
 import markdownIt from "markdown-it";
+import studioEleventyPreset from "../src/index.js";
 import { registerUswdsAccordionEditorComponent } from "../src/admin/uswds-accordion-editor-component.js";
 import {
   PRETTIER_IGNORE_END,
@@ -12,6 +17,7 @@ import { registerShortcodes } from "../src/shortcodes.js";
 import {
   buildAccordionBlock,
   dumpAccordionYaml,
+  parseAccordionAttributes,
   parseAccordionBlock,
   parseAccordionYaml,
   renderUswdsAccordion,
@@ -92,6 +98,36 @@ items:
   });
 
   assert.match(component.toPreview({ items: [{ title: "Preview", content: "**Body**" }] }), /<strong>Body<\/strong>/);
+
+  const liquidSource = "**{{ page.title }}** {% site_notice %}";
+  const previewData = {
+    items: [{ title: "Safe preview", content: liquidSource }],
+  };
+  const preview = component.toPreview(previewData);
+  const savedBlock = component.toBlock(previewData);
+
+  assert.match(preview, /\{\{ page\.title \}\}/);
+  assert.match(preview, /\{% site_notice %\}/);
+  assert.doesNotMatch(preview, /site-notice/);
+  assert.equal(
+    component.fromBlock(USWDS_ACCORDION_PATTERN.exec(savedBlock)).items[0]
+      .content,
+    liquidSource,
+  );
+});
+
+test("accordion attributes contain only accordion display options", () => {
+  assert.deepEqual(parseAccordionAttributes(), {
+    bordered: false,
+    allow_multiple: false,
+  });
+  assert.deepEqual(
+    parseAccordionAttributes('bordered=true allow_multiple="true"'),
+    {
+      bordered: true,
+      allow_multiple: true,
+    },
+  );
 });
 
 test("accordion editor parses legacy blocks and normalizes round trips to one wrapper", () => {
@@ -204,7 +240,45 @@ test("accordion renderer creates unique ids for duplicate titles", () => {
   assert.match(html, /id="uswds-accordion-1-item-2-duplicate"/);
 });
 
-test("accordion shortcode captures raw YAML so item body Liquid is not evaluated", async () => {
+test("accordion parses raw YAML before rendering item content as Liquid", async () => {
+  const liquidEngine = new Liquid();
+  const eleventyConfig = {
+    addLiquidShortcode() {},
+    addShortcode() {},
+  };
+
+  registerShortcodes(
+    eleventyConfig,
+    {
+      features: { imageShortcodes: false },
+      imageShortcodes: {},
+    },
+    {
+      liquidEngine,
+      markdownLibrary: createMarkdownLibrary(),
+    },
+  );
+  liquidEngine.registerTag("site_notice", {
+    render() {
+      return '<span class="site-notice">evaluated shortcode</span>';
+    },
+  });
+
+  const html = await liquidEngine.parseAndRender(`{% assign secret = "evaluated" %}
+{% uswds_accordion bordered=false allow_multiple=false %}
+items:
+  - title: First
+    open: false
+    content: |-
+      **Bold {{ secret }}** {% site_notice %}
+{% enduswds_accordion %}`);
+
+  assert.match(html, /<strong>Bold evaluated<\/strong>/);
+  assert.match(html, /<span class="site-notice">evaluated shortcode<\/span>/);
+  assert.doesNotMatch(html, /\{\{ secret \}\}/);
+});
+
+test("accordion Liquid can preserve literal syntax with a raw block", async () => {
   const liquidEngine = new Liquid();
   const eleventyConfig = {
     addLiquidShortcode() {},
@@ -223,19 +297,88 @@ test("accordion shortcode captures raw YAML so item body Liquid is not evaluated
     },
   );
 
-  const html = await liquidEngine.parseAndRender(`{% assign secret = "evaluated" %}
-{% uswds_accordion bordered=false allow_multiple=false %}
+  const html = await liquidEngine.parseAndRender(`
+{% uswds_accordion %}
 items:
-  - title: First
-    open: false
+  - title: Literal
     content: |-
-      **Bold** {{ secret }} {% assign nested = "nope" %}
+      {% raw %}{{ page.title }} {% site_notice %}{% endraw %}
 {% enduswds_accordion %}`);
 
-  assert.match(html, /<strong>Bold<\/strong>/);
-  assert.match(html, /\{\{ secret \}\}/);
-  assert.match(html, /\{% assign nested = &quot;nope&quot; %\}/);
-  assert.doesNotMatch(html, /evaluated/);
+  assert.match(html, /\{\{ page\.title \}\} \{% site_notice %\}/);
+});
+
+test("Eleventy renders site and preset shortcodes in accordion content by default", async () => {
+  const fixturePath = fileURLToPath(
+    new URL("fixtures/accordion-liquid.md", import.meta.url),
+  );
+  const outputDirectory = await mkdtemp(
+    path.join(os.tmpdir(), "eleventy-preset-accordion-"),
+  );
+  const eleventy = new Eleventy(fixturePath, outputDirectory, {
+    quietMode: true,
+    config: async (eleventyConfig) => {
+      await studioEleventyPreset(eleventyConfig, {
+        features: {
+          collections: false,
+          filters: false,
+          htmlBase: false,
+          imageShortcodes: false,
+          imageTransform: false,
+          navigation: false,
+          passthroughCopy: false,
+          rss: false,
+          shortcodes: true,
+          svgSprites: false,
+          watchTargets: false,
+          yamlData: false,
+        },
+      });
+      eleventyConfig.addShortcode(
+        "site_notice",
+        async function (heading, itemValue) {
+          await Promise.resolve();
+          return `<span class="site-notice" data-page="${this.page.fileSlug}">${heading}: ${itemValue}</span>`;
+        },
+      );
+      eleventyConfig.addLiquidShortcode("liquid_notice", function (heading) {
+        return `<span class="liquid-notice">${heading}</span>`;
+      });
+      eleventyConfig.addLiquidShortcode("emit_liquid", () => {
+        return "{{ page_heading }}";
+      });
+    },
+  });
+
+  try {
+    const [result] = await eleventy.toJSON();
+
+    assert.match(
+      result.content,
+      /<strong><span class="site-notice" data-page="accordion-liquid">Context heading: first<\/span><\/strong>/,
+    );
+    assert.match(result.content, /Outer assignment/);
+    assert.match(result.content, /<svg class="usa-icon test-icon"/);
+    assert.match(result.content, /<p>isolated\s+<span class="site-notice"/);
+    assert.match(
+      result.content,
+      /Context heading: second<\/span>/,
+    );
+    assert.match(
+      result.content,
+      /<span class="liquid-notice">Context heading<\/span>/,
+    );
+    assert.match(
+      result.content,
+      /usa-accordion__button[^>]*>\s+\{\{ page_heading \}\}\s+<\/button>/,
+    );
+    assert.match(
+      result.content,
+      /<span class="liquid-notice">Context heading<\/span>\s+\{\{ page_heading \}\}<\/p>/,
+    );
+  } finally {
+    await rm(outputDirectory, { recursive: true, force: true });
+  }
 });
 
 test("malformed accordion YAML fails clearly", () => {

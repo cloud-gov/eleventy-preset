@@ -50,13 +50,18 @@ test("USWDS raw Liquid tags are registered through Eleventy's persistent tag reg
   );
 
   applyLiquidTags(replacementLiquidEngine, eleventyConfig.liquidTags);
+  replacementLiquidEngine.registerTag("replacement_notice", {
+    render() {
+      return "Replacement engine content";
+    },
+  });
 
   const accordionHtml = await replacementLiquidEngine.parseAndRender(`
 {% uswds_accordion bordered=true allow_multiple=false %}
 items:
   - title: First
     content: |-
-      **Accordion body**
+      **{% replacement_notice %}**
 {% enduswds_accordion %}`);
 
   const cardGroupHtml = await replacementLiquidEngine.parseAndRender(`
@@ -75,7 +80,10 @@ content: |-
 {% enduswds_summary_box %}`);
 
   assert.match(accordionHtml, /usa-accordion--bordered/);
-  assert.match(accordionHtml, /<strong>Accordion body<\/strong>/);
+  assert.match(
+    accordionHtml,
+    /<strong>Replacement engine content<\/strong>/,
+  );
   assert.match(cardGroupHtml, /usa-card__heading/);
   assert.match(cardGroupHtml, /<strong>Card body<\/strong>/);
   assert.match(summaryBoxHtml, /<h3 class="usa-summary-box__heading"/);
