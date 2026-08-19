@@ -4,6 +4,10 @@ import test from "node:test";
 import { Liquid } from "liquidjs";
 import markdownIt from "markdown-it";
 import { registerUswdsAccordionEditorComponent } from "../src/admin/uswds-accordion-editor-component.js";
+import {
+  PRETTIER_IGNORE_END,
+  PRETTIER_IGNORE_START,
+} from "../src/editor-component-block.js";
 import { registerShortcodes } from "../src/shortcodes.js";
 import {
   buildAccordionBlock,
@@ -61,8 +65,20 @@ test("Decap accordion editor component registers with re-editable helpers and de
     ],
   });
 
-  assert.match(block, /\{% uswds_accordion bordered=true allow_multiple=true %\}/);
-  assert.match(block, /content: \|-/);
+  assert.equal(
+    block,
+    `<!-- prettier-ignore-start -->
+
+{% uswds_accordion bordered=true allow_multiple=true %}
+items:
+  - title: "First item"
+    open: true
+    content: |-
+      Markdown body.
+{% enduswds_accordion %}
+
+<!-- prettier-ignore-end -->`,
+  );
   assert.deepEqual(component.fromBlock(USWDS_ACCORDION_PATTERN.exec(block)), {
     bordered: true,
     allow_multiple: true,
@@ -76,6 +92,44 @@ test("Decap accordion editor component registers with re-editable helpers and de
   });
 
   assert.match(component.toPreview({ items: [{ title: "Preview", content: "**Body**" }] }), /<strong>Body<\/strong>/);
+});
+
+test("accordion editor parses legacy blocks and normalizes round trips to one wrapper", () => {
+  const legacyBlock = `{% uswds_accordion bordered=true allow_multiple=false %}
+items:
+  - title: "Legacy item"
+    open: false
+    content: |-
+      Legacy Markdown.
+{% enduswds_accordion %}`;
+  const expectedData = {
+    bordered: true,
+    allow_multiple: false,
+    items: [
+      {
+        title: "Legacy item",
+        open: false,
+        content: "Legacy Markdown.",
+      },
+    ],
+  };
+
+  assert.deepEqual(
+    parseAccordionBlock(USWDS_ACCORDION_PATTERN.exec(legacyBlock)),
+    expectedData,
+  );
+
+  const roundTrip = buildAccordionBlock(expectedData);
+  const wrappedMatch = USWDS_ACCORDION_PATTERN.exec(roundTrip);
+
+  assert.equal(wrappedMatch[0], roundTrip);
+  assert.deepEqual(parseAccordionBlock(wrappedMatch), expectedData);
+  assert.equal(roundTrip.split(PRETTIER_IGNORE_START).length - 1, 1);
+  assert.equal(roundTrip.split(PRETTIER_IGNORE_END).length - 1, 1);
+  assert.equal(
+    buildAccordionBlock(parseAccordionBlock(wrappedMatch)),
+    roundTrip,
+  );
 });
 
 test("accordion YAML serializer keeps empty content explicit and readable", () => {
@@ -210,6 +264,9 @@ ${buildAccordionBlock({
   const matches = [...content.matchAll(pattern)];
 
   assert.equal(matches.length, 2);
+  assert.equal(matches[0][0], content.slice(0, content.indexOf("\n\nSome Markdown")));
+  assert.ok(matches.every((match) => match[0].startsWith(PRETTIER_IGNORE_START)));
+  assert.ok(matches.every((match) => match[0].endsWith(PRETTIER_IGNORE_END)));
   assert.deepEqual(parseAccordionBlock(matches[0]), {
     bordered: false,
     allow_multiple: false,

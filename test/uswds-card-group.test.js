@@ -4,6 +4,10 @@ import test from "node:test";
 import { Liquid } from "liquidjs";
 import markdownIt from "markdown-it";
 import { registerUswdsCardGroupEditorComponent } from "../src/admin/uswds-card-group-editor-component.js";
+import {
+  PRETTIER_IGNORE_END,
+  PRETTIER_IGNORE_START,
+} from "../src/editor-component-block.js";
 import { registerShortcodes } from "../src/shortcodes.js";
 import {
   buildCardGroupBlock,
@@ -54,7 +58,19 @@ test("Decap editor component registers with re-editable helpers and empty defaul
     ],
   });
 
-  assert.match(block, /content: \|-/);
+  assert.equal(
+    block,
+    `<!-- prettier-ignore-start -->
+
+{% uswds_card_group %}
+cards:
+  - heading: "Card heading"
+    content: |-
+      Markdown body.
+{% enduswds_card_group %}
+
+<!-- prettier-ignore-end -->`,
+  );
   assert.deepEqual(
     component.fromBlock(USWDS_CARD_GROUP_PATTERN.exec(block)).cards[0],
     {
@@ -65,6 +81,40 @@ test("Decap editor component registers with re-editable helpers and empty defaul
       link: { label: "", href: "" },
     },
   );
+});
+
+test("card group editor parses legacy blocks and normalizes round trips to one wrapper", () => {
+  const legacyBlock = `{% uswds_card_group %}
+cards:
+  - heading: "Legacy card"
+    content: |-
+      Legacy Markdown.
+{% enduswds_card_group %}`;
+  const expectedData = {
+    cards: [
+      {
+        heading: "Legacy card",
+        content: "Legacy Markdown.",
+        image: { src: "", alt: "" },
+        button: { label: "", href: "" },
+        link: { label: "", href: "" },
+      },
+    ],
+  };
+
+  assert.deepEqual(
+    parseCardGroupBlock(USWDS_CARD_GROUP_PATTERN.exec(legacyBlock)),
+    expectedData,
+  );
+
+  const roundTrip = buildCardGroupBlock(expectedData);
+  const wrappedMatch = USWDS_CARD_GROUP_PATTERN.exec(roundTrip);
+
+  assert.equal(wrappedMatch[0], roundTrip);
+  assert.deepEqual(parseCardGroupBlock(wrappedMatch), expectedData);
+  assert.equal(roundTrip.split(PRETTIER_IGNORE_START).length - 1, 1);
+  assert.equal(roundTrip.split(PRETTIER_IGNORE_END).length - 1, 1);
+  assert.equal(buildCardGroupBlock(parseCardGroupBlock(wrappedMatch)), roundTrip);
 });
 
 test("empty card defaults save without placeholder content", () => {
@@ -192,6 +242,8 @@ ${buildCardGroupBlock({ cards: [{ heading: "Second" }] })}`;
   const matches = [...content.matchAll(pattern)];
 
   assert.equal(matches.length, 2);
+  assert.ok(matches.every((match) => match[0].startsWith(PRETTIER_IGNORE_START)));
+  assert.ok(matches.every((match) => match[0].endsWith(PRETTIER_IGNORE_END)));
   assert.equal(parseCardGroupBlock(matches[0]).cards[0].heading, "First");
   assert.equal(parseCardGroupBlock(matches[1]).cards[0].heading, "Second");
 });

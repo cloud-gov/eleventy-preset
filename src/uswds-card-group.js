@@ -1,5 +1,10 @@
 import yaml from "js-yaml";
 import {
+  createEditorComponentPattern,
+  extractPairedShortcodeBlock,
+  wrapEditorComponentBlock,
+} from "./editor-component-block.js";
+import {
   escapeAttribute,
   escapeHtml,
   hasText,
@@ -10,7 +15,7 @@ import {
 export const USWDS_CARD_GROUP_COMPONENT_ID = "uswds-card-group";
 export const USWDS_CARD_GROUP_LABEL = "USWDS Card Group";
 export const USWDS_CARD_GROUP_PATTERN =
-  /\{%\s*uswds_card_group\s*%\}\s*\n?([\s\S]*?)\n?\{%\s*enduswds_card_group\s*%\}/;
+  createEditorComponentPattern("uswds_card_group");
 
 const CARD_CLASS = "usa-card tablet:grid-col-6 desktop:grid-col-4";
 
@@ -64,15 +69,16 @@ export function parseCardGroupYaml(body = "") {
 }
 
 export function parseCardGroupBlock(matchOrBlock) {
-  const match = Array.isArray(matchOrBlock)
-    ? matchOrBlock
-    : USWDS_CARD_GROUP_PATTERN.exec(String(matchOrBlock || ""));
+  const block = extractPairedShortcodeBlock(
+    matchOrBlock,
+    "uswds_card_group",
+  );
 
-  if (!match) {
+  if (!block) {
     return normalizeCardGroupData();
   }
 
-  return normalizeCardGroupData(parseCardGroupYaml(match[1]));
+  return normalizeCardGroupData(parseCardGroupYaml(block.body));
 }
 
 function pushStringLine(lines, key, value, indent = "    ") {
@@ -147,7 +153,9 @@ export function dumpCardGroupYaml(data = {}) {
 export function buildCardGroupBlock(data = {}) {
   const body = dumpCardGroupYaml(data).trimEnd();
 
-  return `{% uswds_card_group %}\n${body}\n{% enduswds_card_group %}`;
+  return wrapEditorComponentBlock(
+    `{% uswds_card_group %}\n${body}\n{% enduswds_card_group %}`,
+  );
 }
 
 function renderMarkdownOnly(value, markdownLibrary) {

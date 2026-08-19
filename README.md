@@ -341,9 +341,13 @@ Supported fields:
 - item `open`: boolean, default `false`
 
 The editor saves a re-editable Liquid paired shortcode block with YAML instead
-of generated HTML:
+of generated HTML. The shortcode and YAML are enclosed in a canonical Prettier
+ignore range so formatting tools leave the saved component source unchanged.
+The blank lines immediately inside both markers are required:
 
 ```liquid
+<!-- prettier-ignore-start -->
+
 {% uswds_accordion bordered=false allow_multiple=false %}
 items:
   - title: "First item"
@@ -351,7 +355,13 @@ items:
     content: |-
       Markdown body.
 {% enduswds_accordion %}
+
+<!-- prettier-ignore-end -->
 ```
+
+Legacy blocks without the ignore comments remain detectable and editable. When
+Decap re-saves one, the editor normalizes it to the canonical range above with
+exactly one balanced marker pair.
 
 Item content is rendered as Markdown only. Embedded Liquid tags, Liquid output,
 and shortcodes inside item content are preserved as text and are not executed.
@@ -384,9 +394,12 @@ Supported fields:
 - card `link.href`: optional secondary link URL or path
 
 The editor saves a re-editable Liquid paired shortcode block with readable YAML
-instead of generated HTML:
+instead of generated HTML. The ignore range contains only the shortcode and its
+YAML, with the required blank lines immediately inside both markers:
 
 ```liquid
+<!-- prettier-ignore-start -->
+
 {% uswds_card_group %}
 cards:
   - heading: "Card heading"
@@ -402,7 +415,13 @@ cards:
       label: "Secondary link"
       href: "/example/details/"
 {% enduswds_card_group %}
+
+<!-- prettier-ignore-end -->
 ```
+
+Legacy unwrapped card-group blocks remain detectable and editable. Re-saving a
+legacy or already wrapped block produces exactly one canonical Prettier ignore
+range without nesting or duplicating markers.
 
 New cards start with empty optional fields. Empty fields are omitted from the
 saved YAML; an entirely empty card is saved as `{}` and does not add placeholder
@@ -439,15 +458,25 @@ Supported fields:
 - `heading_level`: semantic heading level from `2` through `6`, default `2`
 - `content`: Markdown
 
-The editor saves a re-editable Liquid paired shortcode block with readable YAML:
+The editor saves a re-editable Liquid paired shortcode block with readable YAML
+inside the canonical Prettier ignore range. Keep the required blank lines
+immediately inside both markers:
 
 ```liquid
+<!-- prettier-ignore-start -->
+
 {% uswds_summary_box heading_level=2 %}
 heading: "Key information"
 content: |-
   A concise summary with a [link to more information](/details/).
 {% enduswds_summary_box %}
+
+<!-- prettier-ignore-end -->
 ```
+
+Legacy summary-box blocks without markers remain detectable and editable.
+Re-saving either form emits one balanced canonical range and does not duplicate
+or nest the comments.
 
 The rendered summary box is a labeled region whose accessible name comes from
 the selected semantic heading. Links rendered from Markdown receive the USWDS

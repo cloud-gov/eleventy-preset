@@ -4,6 +4,10 @@ import test from "node:test";
 import { Liquid } from "liquidjs";
 import markdownIt from "markdown-it";
 import { registerUswdsSummaryBoxEditorComponent } from "../src/admin/uswds-summary-box-editor-component.js";
+import {
+  PRETTIER_IGNORE_END,
+  PRETTIER_IGNORE_START,
+} from "../src/editor-component-block.js";
 import { registerShortcodes } from "../src/shortcodes.js";
 import {
   buildSummaryBoxBlock,
@@ -63,8 +67,18 @@ test("Decap summary box component registers with re-editable fields and defaults
     content: "Read the **details**.",
   });
 
-  assert.match(block, /\{% uswds_summary_box heading_level=3 %\}/);
-  assert.match(block, /content: \|-/);
+  assert.equal(
+    block,
+    `<!-- prettier-ignore-start -->
+
+{% uswds_summary_box heading_level=3 %}
+heading: "What to know"
+content: |-
+  Read the **details**.
+{% enduswds_summary_box %}
+
+<!-- prettier-ignore-end -->`,
+  );
   assert.deepEqual(
     component.fromBlock(USWDS_SUMMARY_BOX_PATTERN.exec(block)),
     {
@@ -74,6 +88,33 @@ test("Decap summary box component registers with re-editable fields and defaults
     },
   );
   assert.match(component.toPreview({ content: "**Preview**" }), /<strong>Preview<\/strong>/);
+});
+
+test("summary box editor parses legacy blocks and normalizes round trips to one wrapper", () => {
+  const legacyBlock = `{% uswds_summary_box heading_level=4 %}
+heading: "Legacy summary"
+content: |-
+  Legacy Markdown.
+{% enduswds_summary_box %}`;
+  const expectedData = {
+    heading: "Legacy summary",
+    heading_level: 4,
+    content: "Legacy Markdown.",
+  };
+
+  assert.deepEqual(
+    parseSummaryBoxBlock(USWDS_SUMMARY_BOX_PATTERN.exec(legacyBlock)),
+    expectedData,
+  );
+
+  const roundTrip = buildSummaryBoxBlock(expectedData);
+  const wrappedMatch = USWDS_SUMMARY_BOX_PATTERN.exec(roundTrip);
+
+  assert.equal(wrappedMatch[0], roundTrip);
+  assert.deepEqual(parseSummaryBoxBlock(wrappedMatch), expectedData);
+  assert.equal(roundTrip.split(PRETTIER_IGNORE_START).length - 1, 1);
+  assert.equal(roundTrip.split(PRETTIER_IGNORE_END).length - 1, 1);
+  assert.equal(buildSummaryBoxBlock(parseSummaryBoxBlock(wrappedMatch)), roundTrip);
 });
 
 test("summary box YAML is readable and keeps empty content explicit", () => {
@@ -198,6 +239,8 @@ test("multiple summary box blocks parse and render with distinct stable ids", as
   const matches = [...content.matchAll(pattern)];
 
   assert.equal(matches.length, 2);
+  assert.ok(matches.every((match) => match[0].startsWith(PRETTIER_IGNORE_START)));
+  assert.ok(matches.every((match) => match[0].endsWith(PRETTIER_IGNORE_END)));
   assert.equal(parseSummaryBoxBlock(matches[0]).content, "First");
   assert.equal(parseSummaryBoxBlock(matches[1]).content, "Second");
 

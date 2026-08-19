@@ -1,5 +1,10 @@
 import yaml from "js-yaml";
 import {
+  createEditorComponentPattern,
+  extractPairedShortcodeBlock,
+  wrapEditorComponentBlock,
+} from "./editor-component-block.js";
+import {
   escapeAttribute,
   escapeHtml,
   normalizeObject,
@@ -9,7 +14,7 @@ import {
 export const USWDS_SUMMARY_BOX_COMPONENT_ID = "uswds-summary-box";
 export const USWDS_SUMMARY_BOX_LABEL = "USWDS Summary Box";
 export const USWDS_SUMMARY_BOX_PATTERN =
-  /\{%\s*uswds_summary_box\b([^%}]*)%\}\s*\n?([\s\S]*?)\n?\{%\s*enduswds_summary_box\s*%\}/;
+  createEditorComponentPattern("uswds_summary_box");
 
 const DEFAULT_HEADING = "Key information";
 const DEFAULT_HEADING_LEVEL = 2;
@@ -72,17 +77,18 @@ export function parseSummaryBoxYaml(body = "") {
 }
 
 export function parseSummaryBoxBlock(matchOrBlock) {
-  const match = Array.isArray(matchOrBlock)
-    ? matchOrBlock
-    : USWDS_SUMMARY_BOX_PATTERN.exec(String(matchOrBlock || ""));
+  const block = extractPairedShortcodeBlock(
+    matchOrBlock,
+    "uswds_summary_box",
+  );
 
-  if (!match) {
+  if (!block) {
     return normalizeSummaryBoxData();
   }
 
   return normalizeSummaryBoxData({
-    ...parseSummaryBoxYaml(match[2]),
-    ...parseSummaryBoxAttributes(match[1]),
+    ...parseSummaryBoxYaml(block.body),
+    ...parseSummaryBoxAttributes(block.attributes),
   });
 }
 
@@ -109,7 +115,9 @@ export function buildSummaryBoxBlock(data = {}) {
   const normalized = normalizeSummaryBoxData(data);
   const body = dumpSummaryBoxYaml(normalized).trimEnd();
 
-  return `{% uswds_summary_box heading_level=${normalized.heading_level} %}\n${body}\n{% enduswds_summary_box %}`;
+  return wrapEditorComponentBlock(
+    `{% uswds_summary_box heading_level=${normalized.heading_level} %}\n${body}\n{% enduswds_summary_box %}`,
+  );
 }
 
 function renderSummaryBoxMarkdown(value, markdownLibrary) {
