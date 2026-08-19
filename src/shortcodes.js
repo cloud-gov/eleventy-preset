@@ -40,31 +40,69 @@ function getRawTokenText(token) {
   return token.input.slice(token.begin, token.end);
 }
 
+function* renderLiquidContent(liquidEngine, context, content) {
+  const templates = liquidEngine.parse(String(content || ""));
+  const originalScopes = context.scopes;
+  const isolatedBottomScope = Object.assign(
+    Object.create(null),
+    context.bottom(),
+  );
+
+  context.scopes = [isolatedBottomScope, ...originalScopes.slice(1)];
+
+  try {
+    return yield liquidEngine.renderer.renderTemplates(templates, context);
+  } finally {
+    context.scopes = originalScopes;
+  }
+}
+
 function createUswdsAccordionTag(markdownLibrary) {
   return (liquidEngine) => ({
     parse(tagToken, remainTokens) {
       this.attributeText = tagToken.args;
       this.accordionIndex = (tagToken.begin || 0) + 1;
+      this.input = tagToken.input;
+      this.bodyStart = tagToken.end;
+      this.bodyEnd = undefined;
       this.rawTokens = [];
 
       const stream = liquidEngine.parser
         .parseStream(remainTokens)
         .on("template", (template) => this.rawTokens.push(template.token))
-        .on("tag:enduswds_accordion", () => stream.stop())
+        .on("tag:enduswds_accordion", (endToken) => {
+          this.bodyEnd = endToken.begin;
+          stream.stop();
+        })
         .on("end", () => {
           throw new Error(`tag ${tagToken.raw} not closed`);
         });
 
       stream.start();
     },
-    *render() {
-      const body = this.rawTokens.map(getRawTokenText).join("");
+    *render(context) {
+      const body =
+        typeof this.input === "string" && typeof this.bodyEnd === "number"
+          ? this.input.slice(this.bodyStart, this.bodyEnd)
+          : this.rawTokens.map(getRawTokenText).join("");
       const data = normalizeAccordionData({
         ...parseAccordionAttributes(this.attributeText),
         ...parseAccordionYaml(body),
       });
+      const items = [];
 
-      return renderUswdsAccordion(data, markdownLibrary, {
+      for (const item of data.items) {
+        items.push({
+          ...item,
+          content: yield* renderLiquidContent(
+            liquidEngine,
+            context,
+            item.content,
+          ),
+        });
+      }
+
+      return renderUswdsAccordion({ ...data, items }, markdownLibrary, {
         accordionIndex: this.accordionIndex,
       });
     },
