@@ -26,7 +26,7 @@ collections local.
 
 These steps create a small Eleventy site that uses the preset for Eleventy
 configuration, USWDS assets, Sass and JavaScript builds, shared shortcodes, and
-Decap CMS runtime ownership.
+Decap CMS runtime ownership. Node.js 22 or newer is required.
 
 ### 1. Create the Site Folder
 

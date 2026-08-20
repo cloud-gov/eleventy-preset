@@ -23,13 +23,13 @@
     "README.md"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "peerDependencies": {
     "@11ty/eleventy": "^3.1.0"
   },
   "dependencies": {
-    "@11ty/eleventy-img": "^6.0.4",
+    "@11ty/eleventy-img": "^7.0.0",
     "@11ty/eleventy-navigation": "^1.0.5",
     "@11ty/eleventy-plugin-rss": "^2.0.4",
     "@uswds/uswds": "^3.13.0",
@@ -37,7 +37,7 @@
     "chokidar": "^5.0.0",
     "decap-cms": "^3.14.0",
     "eleventy-plugin-svg-sprite": "^2.4.6",
-    "esbuild": "0.27.3",
+    "esbuild": "0.28.2",
     "js-yaml": "^4.1.1",
     "luxon": "^3.7.2",
     "markdown-it": "^14.1.1",
@@ -48,5 +48,11 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2"
+  },
+  "overrides": {
+    "decap-cms": {
+      "immutable": "4.3.9",
+      "trim": "0.0.3"
+    }
   }
 }
