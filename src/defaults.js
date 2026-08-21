@@ -36,7 +36,8 @@ export const defaultPresetOptions = {
   },
   imageTransform: {
     failOnError: false,
-    widths: ["auto", 600],
+    widths: [600, 1200],
+    responsiveImageClass: "height-auto",
     htmlOptions: {
       imgAttributes: {
         loading: "lazy",

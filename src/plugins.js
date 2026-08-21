@@ -4,6 +4,7 @@ import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
 import pluginNavigation from "@11ty/eleventy-navigation";
 import pluginRss from "@11ty/eleventy-plugin-rss";
 import svgSprite from "eleventy-plugin-svg-sprite";
+import { imageTransformPreparationPlugin } from "./image-transform.js";
 
 const require = createRequire(import.meta.url);
 
@@ -51,8 +52,16 @@ export async function registerOfficialPlugins(eleventyConfig, options) {
   }
 
   if (options.features.imageTransform) {
-    eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+    eleventyConfig.addPlugin(imageTransformPreparationPlugin, {
       ...options.imageTransform,
+      immediate: true,
+    });
+
+    const { responsiveImageClass, ...imageTransformOptions } =
+      options.imageTransform;
+
+    eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+      ...imageTransformOptions,
       immediate: true
     });
   }
