@@ -19,17 +19,64 @@ import {
 } from "./uswds-summary-box.js";
 import { escapeAttribute } from "./uswds-utils.js";
 
-function getYouTubeEmbedUrl(videoUrl) {
-  const url = new URL(videoUrl);
+function getYouTubeVideoId(videoUrl) {
+  let url;
+
+  try {
+    url = new URL(videoUrl);
+  } catch {
+    throw new Error(`Unable to parse YouTube video id from ${videoUrl}`);
+  }
+
   const id = url.hostname.includes("youtu.be")
     ? url.pathname.replace(/^\//, "")
     : url.searchParams.get("v");
 
-  if (!id) {
+  if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) {
     throw new Error(`Unable to parse YouTube video id from ${videoUrl}`);
   }
 
-  return `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
+  return id;
+}
+
+function renderYouTubeShortcode(videoUrl, title) {
+  const id = getYouTubeVideoId(videoUrl);
+  const encodedId = encodeURIComponent(id);
+  const hasTitle = Boolean(title);
+  const videoTitle = hasTitle ? String(title) : "YouTube video";
+  const iframeTitle = hasTitle
+    ? `YouTube video player for ${videoTitle}`
+    : "YouTube video player";
+  const embedUrl = `https://www.youtube.com/embed/${encodedId}`;
+  const playUrl = `${embedUrl}?autoplay=1`;
+  const thumbnailUrl = `https://i.ytimg.com/vi/${encodedId}/hqdefault.jpg`;
+  const srcdoc = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${escapeAttribute(videoTitle)}</title>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      body { background: Canvas; }
+      a { display: grid; place-items: center; height: 100%; overflow: hidden; color: CanvasText; font: 1rem/1.3 system-ui, sans-serif; text-align: center; }
+      a > * { grid-area: 1 / 1; }
+      img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      span { padding: 0.75rem 1rem; border: 0.125rem solid CanvasText; border-radius: 0.25rem; background: Canvas; color: CanvasText; }
+      a:focus-visible span { outline: 0.25rem solid Highlight; outline-offset: 0.25rem; }
+    </style>
+  </head>
+  <body>
+    <a href="${escapeAttribute(playUrl)}">
+      <img src="${escapeAttribute(thumbnailUrl)}" alt="">
+      <span>Play video: ${escapeAttribute(videoTitle)}</span>
+    </a>
+  </body>
+</html>`;
+
+  return `
+<iframe class="yt-shortcode" src="${escapeAttribute(embedUrl)}" srcdoc="${escapeAttribute(srcdoc)}" title="${escapeAttribute(iframeTitle)}" frameborder="0" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+`;
 }
 
 function getRawTokenText(token) {
@@ -269,14 +316,7 @@ export function registerShortcodes(eleventyConfig, options, context = {}) {
     )}" aria-hidden="true" role="img"><use xlink:href="#svg-${escapeAttribute(name)}"></use></svg>`;
   });
 
-  eleventyConfig.addShortcode("youtube", (videoUrl, title) => {
-    const titleText = title ? ` for ${title}` : "";
-    return `
-<iframe class="yt-shortcode" src="${getYouTubeEmbedUrl(videoUrl)}" title="YouTube video player${escapeAttribute(
-      titleText
-    )}" frameborder="0" allowfullscreen></iframe>
-`;
-  });
+  eleventyConfig.addShortcode("youtube", renderYouTubeShortcode);
 
   if (options.features.imageShortcodes) {
     const outputDir = options.imageShortcodes.outputDir;

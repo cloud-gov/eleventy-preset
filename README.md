@@ -452,6 +452,23 @@ link. Unlike `jekyll-redirect-from`, this version does not look for or render a
 site-defined `redirect` layout; the preset-owned document is used consistently
 so escaping and redirect behavior remain safe.
 
+## YouTube Shortcode
+
+The built-in `youtube` shortcode accepts full YouTube watch URLs and shortened
+`youtu.be` URLs. Its optional second argument provides the video title:
+
+```liquid
+{% youtube "https://www.youtube.com/watch?v=8WsgIyLFqgM" "Fraud Reporting FAQ" %}
+```
+
+The shortcode keeps the existing `yt-shortcode` iframe class for responsive
+site styling. On the initial page load, the iframe renders a lightweight
+thumbnail facade with a visible `Play video: Fraud Reporting FAQ` link instead
+of loading YouTube's remote player document. Activating that native link loads
+the embedded player with autoplay inside the same iframe. The iframe remains
+lazy-loaded and supports fullscreen and the permissions needed for playback.
+No site-specific configuration or local shortcode override is required.
+
 ## USWDS Accordion Editor Component
 
 Sites on `@studio/eleventy-preset` v0.3.1 or later get a Decap CMS Markdown
