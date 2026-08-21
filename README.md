@@ -41,7 +41,7 @@ npm init -y
 Install the preset from the tagged GitHub release:
 
 ```sh
-npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.4.0
+npm install --save @studio/eleventy-preset@github:cloud-gov/eleventy-preset#v0.4.1
 npm install --save-dev @11ty/eleventy
 ```
 
@@ -691,13 +691,13 @@ the release workflow is run.
 ```sh
 git switch main
 git pull
-git switch -c release/v0.4.0
+git switch -c release/v0.4.1
 ```
 
 ### 2. Bump the package version
 
 ```sh
-npm version 0.4.0 --no-git-tag-version
+npm version 0.4.1 --no-git-tag-version
 ```
 
 This updates both:
@@ -722,8 +722,8 @@ if they reference the previous version.
 
 ```sh
 git add package.json package-lock.json README.md
-git commit -m "Prepare release v0.4.0"
-git push -u origin release/v0.4.0
+git commit -m "Prepare release v0.4.1"
+git push -u origin release/v0.4.1
 ```
 
 Open a PR into `main`.
@@ -740,7 +740,7 @@ In GitHub:
 2. Select **Release**.
 3. Click **Run workflow**.
 4. Select the `main` branch.
-5. Enter the version without the `v` prefix, for example `0.4.0`.
+5. Enter the version without the `v` prefix, for example `0.4.1`.
 6. Choose whether this is a prerelease.
 7. Run the workflow.
 
