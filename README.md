@@ -285,7 +285,8 @@ module.exports = async function (config) {
 
     imageTransform: {
       failOnError: false, // true fails the build when image transforms fail.
-      widths: ["auto", 600], // Change to generate a different responsive image set.
+      widths: [600, 1200], // Finite defaults avoid needlessly large original-width outputs.
+      responsiveImageClass: "height-auto", // Preserve responsive aspect ratios with USWDS.
       htmlOptions: {
         imgAttributes: {
           loading: "lazy", // Change for eager images.
@@ -315,6 +316,28 @@ module.exports = async function (config) {
   });
 };
 ```
+
+The image transform applies the USWDS `height-auto` utility to transformed
+images so the generated `width` and `height` attributes preserve their aspect
+ratio when `max-width: 100%` constrains an image. Existing source classes are
+kept and the utility is appended. Set `responsiveImageClass` to another class
+name when a consumer provides equivalent responsive-height behavior, or to
+`false` to opt out.
+
+The finite default widths generate candidates up to 1200 pixels wide and avoid
+requesting an original-width WebP for unusually large source files. Consumers
+can replace `widths` with another finite set for their layout, and explicit
+overrides such as `[320, 640]` or `["auto", 600]` continue to pass through to
+`@11ty/eleventy-img`.
+
+With `failOnError: false`, a tolerated transform error keeps the source `src`
+exactly as authored, including a leading slash. An explicit
+`eleventy:optional` attribute still controls the upstream plugin's `keep`,
+`placeholder`, or source-removal behavior. `eleventy:ignore` remains
+appropriate for generated assets, functional or branding SVGs that should not
+be rasterized, remote images that should not introduce a build-time network
+dependency, and platform-managed or legacy paths that are unavailable in the
+local build.
 
 ## Runtime Entry Points
 
