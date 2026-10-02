@@ -1,0 +1,7 @@
+{% assign navPages = collections.all | studioNavigationEntries | eleventyNavigation %}
+{% for item in navPages %}
+{{ item.key }}|{{ item.title }}|{{ item.url }}
+{% for child in item.children %}
+{{ child.key }}|{{ child.title }}|{{ child.url }}
+{% endfor %}
+{% endfor %}

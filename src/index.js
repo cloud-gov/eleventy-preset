@@ -8,6 +8,7 @@ import {
 import { registerFilters } from "./filters.js";
 import { registerLiquid } from "./liquid.js";
 import { registerMarkdown } from "./markdown.js";
+import { registerNavigationHelpers } from "./navigation.js";
 import {
   registerPassthroughCopy,
   registerWatchTargets,
@@ -40,6 +41,10 @@ export default async function studioEleventyPreset(
   }
 
   await registerOfficialPlugins(eleventyConfig, options);
+
+  if (options.features.navigation) {
+    registerNavigationHelpers(eleventyConfig, options);
+  }
 
   if (options.features.svgSprites) {
     registerSvgSprites(eleventyConfig, options);

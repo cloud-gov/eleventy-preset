@@ -310,6 +310,10 @@ module.exports = async function (config) {
       includeCaption: false, // true also enables image_with_caption.
     },
 
+    navigation: {
+      contentDirectory: "content/pages", // Derive optional Studio navigation keys from this directory.
+    },
+
     redirects: {
       json: true, // false omits the generated redirects.json map.
     },
@@ -338,6 +342,119 @@ appropriate for generated assets, functional or branding SVGs that should not
 be rasterized, remote images that should not introduce a build-time network
 dependency, and platform-managed or legacy paths that are unavailable in the
 local build.
+
+## Navigation
+
+The preset registers `@11ty/eleventy-navigation` when
+`features.navigation` is enabled, which is the default. The official plugin
+continues to provide the `eleventyNavigation`, `eleventyNavigationBreadcrumb`,
+`eleventyNavigationToHtml`, and `eleventyNavigationToMarkdown` filters. Its
+native behavior is unchanged, so existing sites can continue to use:
+
+```liquid
+{% assign navPages = collections.all | eleventyNavigation %}
+```
+
+The preset also registers an optional preprocessing filter for sites that want
+navigation hierarchy to follow their content folders. It derives stable keys
+and default parents, then delegates sorting and tree construction to the
+official plugin:
+
+```liquid
+{% assign navPages = collections.all | studioNavigationEntries | eleventyNavigation %}
+```
+
+Pages still opt in individually through `eleventyNavigation`. Missing, `false`,
+`null`, empty, and all-blank objects are excluded, which allows a blank optional
+Decap object to remain out of navigation. `eleventyNavigation: true` is also a
+concise opt-in that uses all derived defaults.
+
+With the default `navigation.contentDirectory` of `content/pages`, these files
+produce the following keys and parents:
+
+```text
+content/pages/about/index.md          -> key: about
+content/pages/about/budget.md         -> key: about/budget; parent: about
+content/pages/about/offices/index.md  -> key: about/offices; parent: about
+content/pages/about/offices/audit.md  -> key: about/offices/audit; parent: about/offices
+```
+
+An `index` file represents its containing directory. A top-level
+`content/pages/index.md` has no relative directory key, so an explicit key or
+the page title is used. Page titles are also the default navigation labels:
+
+```yaml
+---
+title: About this agency
+eleventyNavigation:
+  order: 20
+---
+```
+
+Explicit navigation metadata remains authoritative where it represents a
+content decision. An explicit `parent` can create a branch that differs from
+the file hierarchy, and `url` can point the item to a custom internal or
+external destination. Other plugin-compatible or template-specific properties
+are preserved:
+
+```yaml
+---
+title: Internships
+eleventyNavigation:
+  parent: about/careers
+  title: Student opportunities
+  order: 40
+  url: /careers/internships/
+  sideTitle: Internships
+  hideInSideNav: false
+---
+```
+
+For a Decap pages collection, a minimal compatible field keeps the object and
+its values optional. Sites may add fields such as `selfTitle`, `sideTitle`, or
+`hideInSideNav` when their local templates use them:
+
+```yaml
+- label: Navigation
+  name: eleventyNavigation
+  widget: object
+  required: false
+  fields:
+    - { label: Navigation label, name: title, widget: string, required: false }
+    - { label: Parent key, name: parent, widget: string, required: false }
+    - { label: Order, name: order, widget: number, required: false }
+    - { label: Custom URL, name: url, widget: string, required: false }
+```
+
+Sites whose page content lives under another directory should configure that
+root while keeping the same filter chain:
+
+```js
+await studioPreset(config, {
+  navigation: {
+    contentDirectory: "pages",
+  },
+});
+```
+
+Two current-state helpers are available for local header and side-navigation
+templates. URL comparison is exact after normalizing trailing slashes, and the
+descendant helper searches recursively through the complete tree:
+
+```liquid
+{% assign isCurrent = item.url | studioNavigationIsCurrent: page.url %}
+{% assign hasCurrentDescendant = item.children | studioNavigationHasCurrentDescendant: page.url %}
+```
+
+The preset owns only this reusable data shaping and the helper filters.
+Consuming sites continue to own navigation content, Decap schemas, and all
+header, side-navigation, and other presentation markup. To migrate a site with
+equivalent local path-derived helpers, configure its content directory, replace
+the local filter names in templates with the Studio names above, verify its
+generated navigation, and then remove the duplicate local functions. Sites
+that do not add `studioNavigationEntries` to their filter chain require no
+migration and retain native plugin behavior. Setting `features.navigation` to
+`false` skips both the official plugin and the Studio navigation helpers.
 
 ## Runtime Entry Points
 

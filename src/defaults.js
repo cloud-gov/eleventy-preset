@@ -58,6 +58,9 @@ export const defaultPresetOptions = {
     outputDir: "./_site/img/",
     includeCaption: false,
   },
+  navigation: {
+    contentDirectory: "content/pages",
+  },
   redirects: {
     json: true,
   },
@@ -119,6 +122,10 @@ export function resolvePresetOptions(
     imageShortcodes: {
       ...defaultPresetOptions.imageShortcodes,
       ...(userOptions.imageShortcodes || {}),
+    },
+    navigation: {
+      ...defaultPresetOptions.navigation,
+      ...(userOptions.navigation || {}),
     },
     redirects: {
       ...defaultPresetOptions.redirects,
