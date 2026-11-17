@@ -244,6 +244,128 @@ Use `npm run dev` for local development.
 
 </details>
 
+## Shared coding-agent guidance
+
+The preset bundles shared site guidance in `templates/agents.shared.md`, separate
+from this repository's contributor `AGENTS.md`. Sites maintain one local source,
+`docs/agents.site.md`. From the site's root, `studio-eleventy agents sync` joins
+a generated header, the installed preset's shared guidance, and that local
+Markdown into root `AGENTS.md`. Commit the output so agents can read it before
+dependencies are installed. Guidance comes from the installed version resolved
+by the site's lockfile; synchronization never fetches a gist or GitHub content.
+
+Local guidance is ordinary Markdown, not executable configuration. It supplements
+shared standards rather than overriding them wholesale. Keep it concise and
+self-contained: avoid repeating shared rules, copying palette tables, or relying
+on `DESIGN.md` or other instruction files for essential guidance. Refer to actual
+configuration files for authoritative values.
+
+Create `docs/agents.site.md` using this copyable template, replacing placeholders
+with the site's actual paths, scripts, and constraints. Omit inapplicable sections.
+There is no initialization command or automatic configuration discovery.
+
+```markdown
+# Site guidance
+
+## Paths
+- Eleventy configuration: <path>; input/output: <paths>.
+- Sass entry: <path>; browser/admin entries: <paths>.
+- Layouts/includes: <paths>; content: <paths>.
+
+## Commands and URLs
+- Build: <command, including required environment variables and flags>.
+- Development: <command>; tests: <command>; formatting: <command>.
+- Deployment prefix: <prefix>; local URL constraints: <constraints>.
+
+## Content and CMS contracts
+- Required front matter and CMS fields: <names, values, and template dependencies>.
+- Content conventions: <conventions>.
+
+## Search (if used)
+- Existing Pagefind indexer, collection layout, adapter, and result templates: <paths>.
+- Matching collection/filter/metadata keys: <keys and meanings>.
+
+## Approved exceptions
+- <Exception and why it is needed; accessibility behavior that must be preserved>.
+```
+
+Short filled-in example (all values are illustrative; use the site's actual
+paths and scripts):
+
+```markdown
+# Site guidance
+
+- Configuration: eleventy.config.js; content: content/; layouts/includes: _includes/.
+- Sass: styles/styles.scss; browser/admin entries: js/app.js and js/admin.js.
+- Build: BASEURL=/handbook npm run build; development: npm run dev.
+- Tests: npm test; formatting: npm run format:check.
+- Deployment prefix: /handbook; verify local asset URLs under that prefix.
+- Pages require title and layout front matter; admin/config.yml exposes those
+  same fields, which _includes/layouts/page.html reads.
+- Keep page headings in sentence case; the layout supplies the page's h1.
+```
+
+Add explicit scripts like these to the consuming site's `package.json`:
+
+```json
+{
+  "scripts": {
+    "agents:sync": "studio-eleventy agents sync",
+    "agents:check": "studio-eleventy agents check",
+    "build": "npm run agents:sync && studio-eleventy build",
+    "dev": "npm run agents:sync && studio-eleventy dev"
+  }
+}
+```
+
+These are examples: preserve existing commands, flags, environment settings,
+and forwarded Eleventy arguments. The existing preset build/dev internals remain
+unchanged. Do not put synchronization in Eleventy configuration, installation
+hooks, or an implicit prebuild hook.
+
+`sync` reads only `docs/agents.site.md` as the local source and never modifies it.
+It writes only when output differs, normalizes newlines, and records the preset
+version, generator format version, and source paths without timestamps or
+machine-specific paths. Missing/unreadable inputs and generation failures exit
+nonzero without replacing output. Synchronization writes files; it does not
+commit them or update other repositories.
+
+If an existing root `AGENTS.md` lacks the generator ownership marker, both
+commands fail. Review and preserve its instructions, move essential local rules
+into `docs/agents.site.md`, then deliberately rename or remove the old output
+and rerun synchronization. There is no force-overwrite option or automatic
+migration. Do not add the ownership marker to bypass that review.
+
+- **Local edit:** edit `docs/agents.site.md`, run `npm run agents:sync`, review
+  root `AGENTS.md`, and commit both files. Do not hand-edit generated output.
+- **Preset update:** update the dependency and lockfile, install it, synchronize,
+  and commit generated guidance alongside dependency changes. Dependency-update
+  automation must also regenerate and commit the guidance; no particular
+  automation tool is required. Maintainers update shared guidance in this
+  preset's maintained source for future releases.
+- **CI:** run the freshness check before a build can rewrite stale output:
+
+  ```sh
+  npm ci
+  npm run agents:check
+  npm run build
+  ```
+
+`studio-eleventy agents check` never creates or modifies files. It succeeds only
+when root `AGENTS.md` is managed and current, and exits nonzero for missing,
+stale, unmanaged, or unreadable guidance with instructions to fix the problem.
+
+Exclude instruction Markdown from Eleventy input. For a root-input site, add:
+
+```js
+config.ignores.add("AGENTS.md");
+config.ignores.add("docs/agents.site.md");
+```
+
+Adapt exclusions to the site's actual input configuration (and exclude any
+renamed instruction backup kept inside the input). Adoption is opt-in; this
+change does not add site configuration or change existing build/dev defaults.
+
 ## Eleventy Preset Options
 
 Most sites can call `await studioPreset(config);` without passing options. When
