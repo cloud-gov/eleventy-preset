@@ -29,30 +29,35 @@
     "@11ty/eleventy": "^3.1.0"
   },
   "dependencies": {
-    "@11ty/eleventy-img": "^7.0.0",
+    "@11ty/eleventy-img": "^7.1.1",
     "@11ty/eleventy-navigation": "^1.0.5",
     "@11ty/eleventy-plugin-rss": "^2.0.4",
-    "@uswds/uswds": "^3.13.0",
-    "autoprefixer": "^10.4.24",
+    "@uswds/uswds": "^3.14.0",
+    "autoprefixer": "^10.6.2",
     "chokidar": "^5.0.0",
-    "decap-cms": "^3.14.0",
+    "decap-cms": "^3.17.3",
     "eleventy-plugin-svg-sprite": "^2.4.6",
     "esbuild": "0.28.2",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.3.2",
     "luxon": "^3.7.2",
-    "markdown-it": "^14.1.1",
+    "markdown-it": "^14.3.3",
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-named-headings": "^1.1.0",
-    "postcss": "^8.5.6",
-    "sass": "^1.97.3"
+    "postcss": "^8.5.33",
+    "sass": "^1.108.2"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.2"
+    "@11ty/eleventy": "^3.1.8"
   },
   "overrides": {
     "decap-cms": {
       "immutable": "4.3.9",
-      "trim": "0.0.3"
-    }
+      "trim": "0.0.3",
+      "uuid": "11.1.1"
+    },
+    "eleventy-plugin-svg-sprite": {
+      "glob@^13.0.0": "14.0.6"
+    },
+    "minimatch@>=7 <11.0.1": "11.0.9"
   }
 }
