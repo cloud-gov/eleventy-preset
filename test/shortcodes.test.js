@@ -262,7 +262,12 @@ test("Eleventy renders the accessible YouTube integration fixture", async () => 
   });
 
   try {
-    const [result] = await eleventy.toJSON();
+    const results = await eleventy.toJSON();
+    const result = results.find(
+      (page) => path.resolve(page.inputPath) === fixturePath,
+    );
+
+    assert.ok(result, "expected Eleventy to render the YouTube fixture");
     const srcdoc = getSrcdoc(result.content);
 
     assert.match(result.content, /<iframe class="yt-shortcode"/);
