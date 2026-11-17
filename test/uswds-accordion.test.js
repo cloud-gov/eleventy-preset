@@ -351,7 +351,12 @@ test("Eleventy renders site and preset shortcodes in accordion content by defaul
   });
 
   try {
-    const [result] = await eleventy.toJSON();
+    const results = await eleventy.toJSON();
+    const result = results.find(
+      (page) => path.resolve(page.inputPath) === fixturePath,
+    );
+
+    assert.ok(result, "expected Eleventy to render the accordion fixture");
 
     assert.match(
       result.content,
