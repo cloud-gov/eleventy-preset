@@ -5,6 +5,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildAll, watchAssets } from "../src/assets.js";
 import { normalizePathPrefix } from "../src/defaults.js";
+import { runAgents } from "../src/agents.js";
 
 function readFlagValue(args, flagName) {
   const index = args.indexOf(flagName);
@@ -237,13 +238,16 @@ function printUsage() {
   console.error(`Usage:
   studio-eleventy build [--config ./asset.config.js] [-- <eleventy args>]
   studio-eleventy dev [--config ./asset.config.js] [-- <eleventy args>]
-  studio-eleventy assets [--config ./asset.config.js] [--watch] [--skip-initial]`);
+  studio-eleventy assets [--config ./asset.config.js] [--watch] [--skip-initial]
+  studio-eleventy agents <sync|check>`);
 }
 
 const [command, ...args] = process.argv.slice(2);
 
 try {
-  if (command === "build") {
+  if (command === "agents") {
+    console.log(await runAgents(args));
+  } else if (command === "build") {
     await runBuild(args);
   } else if (command === "dev") {
     await runDev(args);
